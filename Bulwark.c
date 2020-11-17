@@ -167,8 +167,6 @@ void Bulwark_SetForegroundColor16(uint8 color16) {
   printf("%s[%d%dm", ANSI_ESCAPE_SEQUENCE_START, ansiForegroundColorInfo.brightnessSpecifier, ansiForegroundColorInfo.colorSpecifier);
 }
 
-void Bulwark_SetForegroundColor256(uint8 color256);
-
 void Bulwark_SetBackgroundColor16(uint8 color16) {
   AnsiColorInfo16 ansiBackgroundColorInfo;
 
@@ -176,8 +174,6 @@ void Bulwark_SetBackgroundColor16(uint8 color16) {
 
   printf("%s[%d%dm", ANSI_ESCAPE_SEQUENCE_START, ansiBackgroundColorInfo.brightnessSpecifier, ansiBackgroundColorInfo.colorSpecifier);
 }
-
-void Bulwark_SetBackgroundColor256(uint8 color256);
 
 void Bulwark_SetForegroundAndBackgroundColors16(uint8 foregroundColor16, uint8 backgroundColor16) {
   AnsiColorInfo16 ansiForegroundColorInfo;
@@ -190,8 +186,6 @@ void Bulwark_SetForegroundAndBackgroundColors16(uint8 foregroundColor16, uint8 b
           ansiForegroundColorInfo.brightnessSpecifier, ansiForegroundColorInfo.colorSpecifier,
           ansiBackgroundColorInfo.brightnessSpecifier, ansiBackgroundColorInfo.colorSpecifier);
 }
-
-void Bulwark_SetForegroundAndBackgroundColors256(uint8 foregroundColor256, uint8 backgroundColor256);
 
 void Bulwark_SetDrawPosition(uint16 x, uint16 y) {
   printf("%s[%d;%dH", ANSI_ESCAPE_SEQUENCE_START, y+1, x+1);
@@ -212,9 +206,6 @@ void Bulwark_SetCursorVisible(bool cursorVisible) {
     printf("%s", ANSI_HIDE_CURSOR);
   }
 }
-
-void Bulwark_SetCursorShape(BulwarkCursorShape shape);
-void Bulwark_SetCursorBlinking(bool blinkingEnabled);
 
 static void generateForegroundAnsiColorInfoFromColor16(uint8 color16, AnsiColorInfo16 *output) {
   if (color16 < 8) {

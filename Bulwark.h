@@ -18,8 +18,6 @@ void Bulwark_Initialize();
 void Bulwark_Quit();
 
 /* Event functions */
-bool Bulwark_HasEventsInQueue();
-void Bulwark_ReadNextEventInQueue(BulwarkEvent *output);
 void Bulwark_WaitForNextEvent(BulwarkEvent *output);
 BulwarkEvent *BulwarkEvent_Create();
 void BulwarkEvent_Destroy(BulwarkEvent *event);
@@ -28,11 +26,8 @@ char BulwarkEvent_GetCharacter(BulwarkEvent *event);
 
 /* Color functions */
 void Bulwark_SetForegroundColor16(uint8 color16);
-void Bulwark_SetForegroundColor256(uint8 color256);
 void Bulwark_SetBackgroundColor16(uint8 color16);
-void Bulwark_SetBackgroundColor256(uint8 color256);
 void Bulwark_SetForegroundAndBackgroundColors16(uint8 foregroundColor16, uint8 backgroundColor16);
-void Bulwark_SetForegroundAndBackgroundColors256(uint8 foregroundColor256, uint8 backgroundColor256);
 void Bulwark_ClearForegroundColor();
 void Bulwark_ClearBackgroundColor();
 void Bulwark_ClearForegroundAndBackgroundColor();
@@ -44,8 +39,6 @@ void Bulwark_DrawString(const char *string);
 
 /* Cursor style functions */
 void Bulwark_SetCursorVisible(bool cursorVisible);
-void Bulwark_SetCursorShape(BulwarkCursorShape shape);
-void Bulwark_SetCursorBlinking(bool blinkingEnabled);
 
 /* Window functions */
 uint16 Bulwark_GetWindowWidth();
