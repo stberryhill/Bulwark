@@ -26,13 +26,6 @@ static int equal(const char string1[], const char string2[]) {
   return strcmp(string1, string2) == 0;
 }
 
-/*static void duplicateFileDescriptor(int source, int destination) {
-  if (dup2(source, destination) < 0) {
-    printf("Error - could not duplicate file descriptor %d to %d.\n", source, destination);
-    exit(EXIT_FAILURE);
-  }
-}*/
-
 static void redirectStdoutToOutputFile() {
   int outputFile = open(OUTPUT_FILE_NAME, O_WRONLY | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
   if (outputFile < 0) {
@@ -160,15 +153,6 @@ void drawString() {
   Kibi_AssertTrue(equal(expected, actual));
 }
 
-void playBellSound() {
-  const char expected = '\007';
-  char actual[2] = "";
-
-  interceptOutput(Bulwark_PlayBellSound(), actual);
-
-  Kibi_AssertTrue(expected == actual[0]);
-}
-
 int main() {
 
   Kibi_Test(setDrawPosition);
@@ -177,7 +161,6 @@ int main() {
   Kibi_Test(setForegroundAndBackgroundColors16);
   Kibi_Test(drawCharacter);
   Kibi_Test(drawString);
-  /*Kibi_Test(playBellSound);*/
 
   afterAllCleanup();
   
