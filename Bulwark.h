@@ -2,7 +2,6 @@
 #define _BULWARK_H
 
 #include "Color16Definitions.h"
-#include "CursorStyleDefinitions.h"
 
 #include <lang/types.h>
 #include <stdio.h>

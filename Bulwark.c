@@ -19,7 +19,6 @@ static const char ANSI_EXIT_ALTERNATE_BUFFER_MODE[] = "?1049l";
 static const char ANSI_CLEAR_BUFFER_AND_KILL_SCROLLBACK[] = "2J";
 static const char ANSI_HIDE_CURSOR[] = "\x1b[?25h";
 static const char ANSI_SHOW_CURSOR[] = "\x1b[?25l";
-static BulwarkEventQueue *eventQueue;
 static struct termios termiosBeforeQuickTermInitialized;
 static uint16 windowWidth;
 static uint16 windowHeight;
@@ -29,10 +28,6 @@ static FILE *logFileDescriptor;
 static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit();
 static void readInitialWindowWidthAndHeight();
 static void enableRawInput();
-static void initializeEventQueue();
-static void setupTerminalToSendResizeEventsWhenResized();
-static void installTerminalResizeCallback();
-static void terminalResizeCallback(int i);
 static void prepareBuffer();
 static void enterAlternateBufferSoWeDontMessUpPastTerminalHistory();
 static void exitAlternateBufferModeSinceWeEnteredUponInitialization();
@@ -52,8 +47,6 @@ void Bulwark_Initialize() {
   readInitialWindowWidthAndHeight();
   enableRawInput();
   prepareBuffer();
-  initializeEventQueue();
-  setupTerminalToSendResizeEventsWhenResized();
 }
 
 static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit() {
@@ -96,37 +89,6 @@ static void disableBufferingOnStdoutSoPrintfWillGoThroughImmediately() {
   setvbuf(stdout, NULL, _IONBF, 0);
 }
 
-static void initializeEventQueue() {
-  eventQueue = BulwarkEventQueue_Create();
-}
-
-static void setupTerminalToSendResizeEventsWhenResized() {
-  installTerminalResizeCallback();
-}
-
-static void installTerminalResizeCallback() {
-  /* Our child process will receive the SIGWINCH signal whenever the terminal is resized */
-  signal(SIGWINCH, terminalResizeCallback);
-}
-
-static void terminalResizeCallback(int i) {
-  struct winsize newWindowSize;
-
-	ioctl(1, TIOCGWINSZ, &newWindowSize);
-
-  /* Set these so GetWindowWidth and GetWindowHight functions stay up-to-date. */
-	windowWidth = newWindowSize.ws_col;
-	windowHeight = newWindowSize.ws_row;
-
-  /* Queue window resize event */
-  BulwarkEvent event;
-  event.type = BULWARK_EVENT_TYPE_WINDOW_RESIZE;
-  event.newWindowWidth = windowWidth;
-  event.newWindowHeight = windowHeight;
-
-  BulwarkEventQueue_AddEvent(eventQueue, &event);
-}
-
 void Bulwark_Quit() {
   clearBufferAndKillScrollback();
   exitAlternateBufferModeSinceWeEnteredUponInitialization();
@@ -142,19 +104,9 @@ static void restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized() {
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &termiosBeforeQuickTermInitialized);
 }
 
-bool Bulwark_HasEventsInQueue() {
-  return !BulwarkEventQueue_IsEmpty(eventQueue);
-}
-
-void Bulwark_ReadNextEventInQueue(BulwarkEvent *output) {
-  BulwarkEventQueue_ReadAndConsumeEvent(eventQueue, output);
-}
-
 void Bulwark_WaitForNextEvent(BulwarkEvent *output) {
-  fprintf(logFileDescriptor, "Waiting for event...\n");
   fflush(logFileDescriptor);
   read(STDIN_FILENO, &output->character, 1);
-  fprintf(logFileDescriptor, "... event Recieved, Character: %c\n", output->character);
   fflush(logFileDescriptor);
   output->type = BULWARK_EVENT_TYPE_INPUT;
 }
