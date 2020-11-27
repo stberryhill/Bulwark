@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../Bulwark.h"
+#include <Bulwark.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -57,7 +57,6 @@ static void clearFileThatsAlreadyOpen(FILE *filePointer) {
   const char OVERWRITE_MODE[] = "w";
   filePointer = freopen(NULL, OVERWRITE_MODE, filePointer);
 }
-
 
 static const char *readLatestFromOutputFile() {
   const char READ_MODE[] = "r";
