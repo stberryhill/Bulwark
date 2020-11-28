@@ -1,4 +1,4 @@
-#include "Bulwark.h"
+#include <Bulwark.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,10 +10,10 @@
 #define MAX_ASCII_LOGO_HEIGHT 40
 
 /* Random functions */
-uint8 getRandomColor16NotBlack();
-uint32 getRandomScreenX();
-uint32 getRandomScreenY();
-uint32 xorshift32(uint32 seed);
+int getRandomColor16NotBlack();
+int getRandomScreenX();
+int getRandomScreenY();
+int xorshift32(int seed);
 
 /* Snake around the terminal, changing colors occasionally */
 void snakeIt() {
@@ -53,26 +53,26 @@ void snakeIt() {
     }
 }
 
-uint8 getRandomColor16NotBlack() {
-    static uint32 seedX = 3;
+int getRandomColor16NotBlack() {
+    static int seedX = 3;
     seedX = xorshift32(seedX);
     return (seedX % 15) + 1;
 }
 
-uint32 getRandomScreenX() {
-    static uint32 seedX = 2;
+int getRandomScreenX() {
+    static int seedX = 2;
     seedX = xorshift32(seedX);
     return seedX % Bulwark_GetWindowWidth();
 }
 
-uint32 getRandomScreenY() {
-    static uint32 seedY = 1;
+int getRandomScreenY() {
+    static int seedY = 1;
     seedY = xorshift32(seedY);
     return seedY % Bulwark_GetWindowHeight();
 }
 
-uint32 xorshift32(uint32 seed) {
-  uint32 next = seed;
+int xorshift32(int seed) {
+  int next = seed;
 
   next ^= next << 13;
   next ^= next >> 17;

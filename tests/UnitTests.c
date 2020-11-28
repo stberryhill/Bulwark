@@ -37,7 +37,11 @@ static void redirectStdoutToOutputFile() {
   fflush(stdout);
   originalStdout = dup(STDOUT_FILENO);
   close(STDOUT_FILENO);
-  dup(outputFile);
+  if (dup(outputFile) < 0) {
+    printf("Error - could not duplicate output file descriptor.\n");
+    fflush(stdout);
+    exit(EXIT_FAILURE);
+  }
   close(outputFile);
 }
 
@@ -49,7 +53,11 @@ static void afterAllCleanup() {
 static void restoreStdoutToNormal() {
   fflush(stdout);
   close(STDOUT_FILENO);
-  dup(originalStdout);
+  if (dup(originalStdout) < 0) {
+    printf("Error - could not duplicate output file descriptor.\n");
+    fflush(stdout);
+    exit(EXIT_FAILURE);
+  }
   close(originalStdout);
 }
 
@@ -74,7 +82,12 @@ static const char *readLatestFromOutputFile() {
     exit(EXIT_FAILURE);
   }
 
-  fgets(outputContents, MAX_OUTPUT_LENGTH, filePointer); /* Read everything in file */
+  /* Read everything in file */
+  if (fgets(outputContents, MAX_OUTPUT_LENGTH, filePointer) == NULL) {
+    printf("Error - could not read output file contents.\n");
+    fflush(stdout);
+    exit(EXIT_FAILURE);
+  }
   clearFileThatsAlreadyOpen(filePointer); /* Clear before next output comes */
   fclose(filePointer);
 
@@ -95,9 +108,9 @@ void setDrawPosition() {
 }
 
 void setBackgroundColor16() {
-  const uint8 COLOR16 = 8;
-  const uint8 brightnessSpecifier = 10;
-  const uint8 colorSpecifier = 0;
+  const int COLOR16 = 8;
+  const int brightnessSpecifier = 10;
+  const int colorSpecifier = 0;
   char expected[MAX_OUTPUT_LENGTH] = "";
   char actual[MAX_OUTPUT_LENGTH] = "";
   sprintf(expected, "%c[%d%dm", ANSI_ESCAPE_CODE, brightnessSpecifier, colorSpecifier);
@@ -108,9 +121,9 @@ void setBackgroundColor16() {
 }
 
 void setForegroundColor16() {
-  const uint8 COLOR16 = 8;
-  const uint8 brightnessSpecifier = 9;
-  const uint8 colorSpecifier = 0;
+  const int COLOR16 = 8;
+  const int brightnessSpecifier = 9;
+  const int colorSpecifier = 0;
   char expected[MAX_OUTPUT_LENGTH] = "";
   char actual[MAX_OUTPUT_LENGTH] = "";
   sprintf(expected, "%c[%d%dm", ANSI_ESCAPE_CODE, brightnessSpecifier, colorSpecifier);
@@ -121,10 +134,10 @@ void setForegroundColor16() {
 }
 
 void setForegroundAndBackgroundColors16() {
-  const uint8 COLOR16 = 8;
-  const uint8 foregroundBrightness = 9;
-  const uint8 backgroundBrightness = 10;
-  const uint8 colorSpecifier = 0;
+  const int COLOR16 = 8;
+  const int foregroundBrightness = 9;
+  const int backgroundBrightness = 10;
+  const int colorSpecifier = 0;
   char expected[MAX_OUTPUT_LENGTH] = "";
   char actual[MAX_OUTPUT_LENGTH] = "";
   sprintf(expected, "%c[%d%d;%d%dm", ANSI_ESCAPE_CODE, foregroundBrightness, colorSpecifier, backgroundBrightness, colorSpecifier);

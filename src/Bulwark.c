@@ -20,8 +20,8 @@ static const char ANSI_CLEAR_BUFFER_AND_KILL_SCROLLBACK[] = "2J";
 static const char ANSI_HIDE_CURSOR[] = "\x1b[?25h";
 static const char ANSI_SHOW_CURSOR[] = "\x1b[?25l";
 static struct termios termiosBeforeQuickTermInitialized;
-static uint16 windowWidth;
-static uint16 windowHeight;
+static int windowWidth;
+static int windowHeight;
 static FILE *logFileDescriptor;
 
 /* Private function declarations */
@@ -33,8 +33,8 @@ static void enterAlternateBufferSoWeDontMessUpPastTerminalHistory();
 static void exitAlternateBufferModeSinceWeEnteredUponInitialization();
 static void clearBufferAndKillScrollback();
 static void restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized();
-static void generateForegroundAnsiColorInfoFromColor16(uint8 color16, AnsiColorInfo16 *output);
-static void generateBackgroundAnsiColorInfoFromColor16(uint8 color16, AnsiColorInfo16 *output);
+static void generateForegroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output);
+static void generateBackgroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output);
 static void clearBufferAndKillScrollback();
 static void disableBufferingOnStdoutSoPrintfWillGoThroughImmediately();
 static void ensureWeStillCleanUpIfProgramStoppedWithCtrlC();
@@ -106,12 +106,15 @@ static void restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized() {
 
 void Bulwark_WaitForNextEvent(BulwarkEvent *output) {
   fflush(logFileDescriptor);
-  read(STDIN_FILENO, &output->character, 1);
+  if (read(STDIN_FILENO, &output->character, 1) < 0) {
+    fprintf(logFileDescriptor, "Error - could not read character from STDIN_FILENO\n");
+    exit(-1);
+  }
   fflush(logFileDescriptor);
   output->type = BULWARK_EVENT_TYPE_INPUT;
 }
 
-void Bulwark_SetForegroundColor16(uint8 color16) {
+void Bulwark_SetForegroundColor16(int color16) {
   AnsiColorInfo16 ansiForegroundColorInfo;
 
   generateForegroundAnsiColorInfoFromColor16(color16, &ansiForegroundColorInfo);
@@ -119,7 +122,7 @@ void Bulwark_SetForegroundColor16(uint8 color16) {
   printf("%s[%d%dm", ANSI_ESCAPE_SEQUENCE_START, ansiForegroundColorInfo.brightnessSpecifier, ansiForegroundColorInfo.colorSpecifier);
 }
 
-void Bulwark_SetBackgroundColor16(uint8 color16) {
+void Bulwark_SetBackgroundColor16(int color16) {
   AnsiColorInfo16 ansiBackgroundColorInfo;
 
   generateBackgroundAnsiColorInfoFromColor16(color16, &ansiBackgroundColorInfo);
@@ -127,7 +130,7 @@ void Bulwark_SetBackgroundColor16(uint8 color16) {
   printf("%s[%d%dm", ANSI_ESCAPE_SEQUENCE_START, ansiBackgroundColorInfo.brightnessSpecifier, ansiBackgroundColorInfo.colorSpecifier);
 }
 
-void Bulwark_SetForegroundAndBackgroundColors16(uint8 foregroundColor16, uint8 backgroundColor16) {
+void Bulwark_SetForegroundAndBackgroundColors16(int foregroundColor16, int backgroundColor16) {
   AnsiColorInfo16 ansiForegroundColorInfo;
   AnsiColorInfo16 ansiBackgroundColorInfo;
 
@@ -139,7 +142,7 @@ void Bulwark_SetForegroundAndBackgroundColors16(uint8 foregroundColor16, uint8 b
           ansiBackgroundColorInfo.brightnessSpecifier, ansiBackgroundColorInfo.colorSpecifier);
 }
 
-void Bulwark_SetDrawPosition(uint16 x, uint16 y) {
+void Bulwark_SetDrawPosition(int x, int y) {
   printf("%s[%d;%dH", ANSI_ESCAPE_SEQUENCE_START, y+1, x+1);
 }
 
@@ -159,7 +162,7 @@ void Bulwark_SetCursorVisible(bool cursorVisible) {
   }
 }
 
-static void generateForegroundAnsiColorInfoFromColor16(uint8 color16, AnsiColorInfo16 *output) {
+static void generateForegroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output) {
   if (color16 < 8) {
     output->brightnessSpecifier = ANSI_FOREGROUND_BRIGHTNESS_NORMAL;
     output->colorSpecifier = color16;
@@ -169,7 +172,7 @@ static void generateForegroundAnsiColorInfoFromColor16(uint8 color16, AnsiColorI
   }
 }
 
-static void generateBackgroundAnsiColorInfoFromColor16(uint8 color16, AnsiColorInfo16 *output) {
+static void generateBackgroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output) {
   if (color16 < 8) {
     output->brightnessSpecifier = ANSI_BACKGROUND_BRIGHTNESS_NORMAL;
     output->colorSpecifier = color16;
@@ -179,10 +182,10 @@ static void generateBackgroundAnsiColorInfoFromColor16(uint8 color16, AnsiColorI
   }
 }
 
-uint16 Bulwark_GetWindowWidth() {
+int Bulwark_GetWindowWidth() {
   return windowWidth;
 }
 
-uint16 Bulwark_GetWindowHeight() {
+int Bulwark_GetWindowHeight() {
   return windowHeight;
 }

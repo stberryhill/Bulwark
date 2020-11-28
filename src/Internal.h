@@ -18,20 +18,20 @@ struct BulwarkEvent {
   char character;
 
   /* For window resize event */
-  uint16 newWindowWidth;
-  uint16 newWindowHeight;
+  int newWindowWidth;
+  int newWindowHeight;
 };
 
 typedef struct AnsiColorInfo16 {
-  uint8 brightnessSpecifier;
-  uint8 colorSpecifier;
+  int brightnessSpecifier;
+  int colorSpecifier;
 } AnsiColorInfo16;
 
 typedef struct BulwarkEventQueue {
   BulwarkEvent events[MAX_EVENTS];
-  uint8 eventCount;
-  uint8 writePosition;
-  uint8 readPosition;
+  int eventCount;
+  int writePosition;
+  int readPosition;
 } BulwarkEventQueue;
 
 BulwarkEventQueue *BulwarkEventQueue_Create();
