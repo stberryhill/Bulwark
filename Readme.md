@@ -35,4 +35,4 @@ Some of the goals of Bulwark include:
 * Give functions long, self-explanatory names so the library can be discovered during programming, without lots of googling.
 
 ## The Plan
-Bulwark is in early stages of development so most of these goals are largely incomplete. The evil plan is to develop a nice/fun app with it during development to showcase it's capabilites. I'm currently working on a simple website to host in parallel and migrating the build system from hand-written, brittle makefiles to the Autotools (a.k.a. *autoconfiscating* it). Also looking for a good planning tool, might use Trello.
+Bulwark is in early stages of development so most of these goals are largely incomplete. The evil plan is to develop a nice/fun app with it during development to showcase it's capabilites. I'm currently working on a simple website in parallel and migrating the build system from hand-written, brittle makefiles to the Autotools (a.k.a. *autoconfiscating* it). Also looking for a good planning tool, might use Trello.
