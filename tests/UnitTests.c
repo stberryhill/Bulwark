@@ -133,7 +133,11 @@ void setForegroundColor16() {
   Kibi_AssertTrue(equal(actual, expected));
 }
 
+<<<<<<< Updated upstream
 void setForegroundAndBackgroundColors16() {
+=======
+void setForegroundAndBackgroundColor16() {
+>>>>>>> Stashed changes
   const int COLOR16 = 8;
   const int foregroundBrightness = 9;
   const int backgroundBrightness = 10;
@@ -142,7 +146,51 @@ void setForegroundAndBackgroundColors16() {
   char actual[MAX_OUTPUT_LENGTH] = "";
   sprintf(expected, "%c[%d%d;%d%dm", ANSI_ESCAPE_CODE, foregroundBrightness, colorSpecifier, backgroundBrightness, colorSpecifier);
 
-  interceptOutput(Bulwark_SetForegroundAndBackgroundColors16(COLOR16, COLOR16), actual);
+  interceptOutput(Bulwark_SetForegroundAndBackgroundColor16(COLOR16, COLOR16), actual);
+
+  Kibi_AssertTrue(equal(actual, expected));
+}
+
+void setForegroundColor256() {
+  const int COLOR256 = 128;
+  char expected[MAX_OUTPUT_LENGTH] = "";
+  char actual[MAX_OUTPUT_LENGTH] = "";
+  sprintf(expected, "%c[38;5;%dm", ANSI_ESCAPE_CODE, COLOR256);
+
+  interceptOutput(Bulwark_SetForegroundColor256(COLOR256), actual);
+
+  Kibi_AssertTrue(equal(actual, expected));
+}
+
+void setBackgroundColor256() {
+  const int COLOR256 = 128;
+  char expected[MAX_OUTPUT_LENGTH] = "";
+  char actual[MAX_OUTPUT_LENGTH] = "";
+  sprintf(expected, "%c[48;5;%dm", ANSI_ESCAPE_CODE, COLOR256);
+
+  interceptOutput(Bulwark_SetBackgroundColor256(COLOR256), actual);
+
+  Kibi_AssertTrue(equal(actual, expected));
+}
+
+void setForegroundAndBackgroundColor256() {
+  const int BACKGROUND256 = 128;
+  const int FOREGROUND256 = 255;
+  char expected[MAX_OUTPUT_LENGTH] = "";
+  char actual[MAX_OUTPUT_LENGTH] = "";
+  sprintf(expected, "%c[38;5;%d;48;5;%dm", ANSI_ESCAPE_CODE, FOREGROUND256, BACKGROUND256);
+
+  interceptOutput(Bulwark_SetForegroundAndBackgroundColor256(FOREGROUND256, BACKGROUND256), actual);
+
+  Kibi_AssertTrue(equal(actual, expected));
+}
+
+void clearForegroundAndBackgroundColor() {
+  char expected[MAX_OUTPUT_LENGTH] = "";
+  char actual[MAX_OUTPUT_LENGTH] = "";
+  sprintf(expected, "%c[%dm", ANSI_ESCAPE_CODE, 0);
+
+  interceptOutput(Bulwark_ClearForegroundAndBackgroundColor(), actual);
 
   Kibi_AssertTrue(equal(actual, expected));
 }
@@ -168,9 +216,13 @@ void drawString() {
 int main() {
 
   Kibi_Test(setDrawPosition);
-  Kibi_Test(setBackgroundColor16);
   Kibi_Test(setForegroundColor16);
-  Kibi_Test(setForegroundAndBackgroundColors16);
+  Kibi_Test(setBackgroundColor16);
+  Kibi_Test(setForegroundAndBackgroundColor16);
+  Kibi_Test(setForegroundColor256);
+  Kibi_Test(setBackgroundColor256);
+  Kibi_Test(setForegroundAndBackgroundColor256);
+  Kibi_Test(clearForegroundAndBackgroundColor);
   Kibi_Test(drawCharacter);
   Kibi_Test(drawString);
 

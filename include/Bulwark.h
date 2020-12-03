@@ -3,7 +3,7 @@
 
 #include "Color16Definitions.h"
 
-#include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 typedef struct BulwarkEvent BulwarkEvent;
@@ -13,6 +13,7 @@ typedef enum BulwarkEventType {
   BULWARK_EVENT_TYPE_WINDOW_RESIZE
 } BulwarkEventType;
 
+/* Setup/teardown functions */
 void Bulwark_Initialize();
 void Bulwark_Quit();
 
@@ -26,9 +27,10 @@ char BulwarkEvent_GetCharacter(BulwarkEvent *event);
 /* Color functions */
 void Bulwark_SetForegroundColor16(int color16);
 void Bulwark_SetBackgroundColor16(int color16);
-void Bulwark_SetForegroundAndBackgroundColors16(int foregroundColor16, int backgroundColor16);
-void Bulwark_ClearForegroundColor();
-void Bulwark_ClearBackgroundColor();
+void Bulwark_SetForegroundAndBackgroundColor16(int foregroundColor16, int backgroundColor16);
+void Bulwark_SetForegroundColor256(int color256);
+void Bulwark_SetBackgroundColor256(int color256);
+void Bulwark_SetForegroundAndBackgroundColor256(int foregroundColor256, int backgroundColor256);
 void Bulwark_ClearForegroundAndBackgroundColor();
 
 /* Drawing functions */
