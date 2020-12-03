@@ -133,11 +133,7 @@ void setForegroundColor16() {
   Kibi_AssertTrue(equal(actual, expected));
 }
 
-<<<<<<< Updated upstream
-void setForegroundAndBackgroundColors16() {
-=======
 void setForegroundAndBackgroundColor16() {
->>>>>>> Stashed changes
   const int COLOR16 = 8;
   const int foregroundBrightness = 9;
   const int backgroundBrightness = 10;
