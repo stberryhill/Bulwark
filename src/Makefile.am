@@ -4,5 +4,6 @@ libbulwark_la_CFLAGS = -I$(abs_top_builddir)/include -I$(top_srcdir)/include -st
 libbulwark_la_SOURCES = \
   Bulwark.c \
   Event.c \
+  EventQueue.c \
   Internal.h \
   Sound.c

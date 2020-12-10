@@ -3,13 +3,14 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
 /* Private variables */
-static const uint8 MAX_QUEUE_POSITION = MAX_EVENTS - 1;
+static const uint8_t MAX_QUEUE_POSITION = MAX_EVENTS - 1;
 
 /* Private function declarations */
 static void exitWithErrorIfQueueAlreadyFull();
-static uint8 getNextQueuePositionFromCurrentPosition(uint8 currentPosition);
+static uint8_t getNextQueuePositionFromCurrentPosition(uint8_t currentPosition);
 
 /*  Function definitions */
 BulwarkEventQueue *BulwarkEventQueue_Create() {
@@ -55,6 +56,6 @@ bool BulwarkEventQueue_IsEmpty(BulwarkEventQueue *queue) {
   return queue->eventCount == 0;
 }
 
-static uint8 getNextQueuePositionFromCurrentPosition(uint8 currentPosition) {
+static uint8_t getNextQueuePositionFromCurrentPosition(uint8_t currentPosition) {
   return currentPosition == MAX_QUEUE_POSITION ? 0 : currentPosition + 1;
 }
