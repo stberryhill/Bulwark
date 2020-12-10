@@ -24,7 +24,7 @@
 # Bulwark
 > A much-needed ncurses alternative, written in C for maximum portability.
 
-Bulwark is a terminal manipulation library; It's meant to be a simple ncurses alternative that works exactly how you'd expect. By simplifying and giving functions self-explanatory names, Bulwark aims to be easily discoverable in any mondern code editor.
+Bulwark is a small but powerful library for making terminal apps. It's meant to be a simple ncurses alternative that works exactly how you'd expect. By simplifying and giving functions self-explanatory names, Bulwark aims to be easily discoverable in any mondern code editor.
 
 Some of the goals of Bulwark include:
 * Target only POSIX environments.
