@@ -32,7 +32,7 @@ Some of the goals of Bulwark include:
 * Support extended character set.
 * Support Async keyboard input through an event queue.
 * Throw away legacy features that no one uses.
-* Be self-documenting in a modern code editor.
+* Be self-documenting in any modern code editor.
 * Be easy to port to other languages.
 * (Eventually) Support mouse events.
 
