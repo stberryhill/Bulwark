@@ -18,8 +18,6 @@ void Bulwark_Initialize();
 void Bulwark_Quit();
 
 /* Event functions */
-bool Bulwark_HasEventsInQueue();
-void Bulwark_ReadNextEventInQueue(BulwarkEvent *output);
 void Bulwark_WaitForNextEvent(BulwarkEvent *output);
 BulwarkEvent *BulwarkEvent_Create();
 void BulwarkEvent_Destroy(BulwarkEvent *event);
