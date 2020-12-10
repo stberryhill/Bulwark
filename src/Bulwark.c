@@ -30,7 +30,6 @@ static void enterAlternateBufferSoWeDontMessUpPastTerminalHistory();
 static void exitAlternateBufferModeSinceWeEnteredUponInitialization();
 static void clearBufferAndKillScrollback();
 static void restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized();
-static void clearBufferAndKillScrollback();
 static void disableBufferingOnStdoutSoPrintfWillGoThroughImmediately();
 static void ensureWeStillCleanUpIfProgramStoppedWithCtrlC();
 
