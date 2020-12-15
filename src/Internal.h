@@ -43,4 +43,9 @@ bool EventQueue_IsEmpty();
 void Input_StartAsyncThread();
 void Input_StopAsyncThread();
 
+void Log_Open();
+void Log_Info(const char *message, ...);
+void Log_Error(const char *message, ...);
+void Log_Close();
+
 #endif

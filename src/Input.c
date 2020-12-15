@@ -30,16 +30,16 @@ void Bulwark_ReadNextEventInQueue(BulwarkEvent *output) {
 
 void Bulwark_WaitForNextEvent(BulwarkEvent *output) {
   if (read(STDIN_FILENO, &output->character, 1) < 0) {
-    fprintf(logFileDescriptor, "Error - could not read character from STDIN_FILENO\n");
-    exit(-1);
+    Log_Error("Could not read character from STDIN_FILENO");
+    exit(EXIT_FAILURE);
   }
-  fflush(logFileDescriptor);
+
   output->type = BULWARK_EVENT_TYPE_INPUT;
 }
 
 void Input_StartAsyncThread() {
   if (pthread_create(&inputThread, NULL, inputThreadLoop, NULL)) {
-    printf("Error - could not create thread a\n");
+    Log_Error("Could not create async input thread");
     exit(EXIT_FAILURE);
   }
 }
@@ -52,10 +52,9 @@ static void *inputThreadLoop(void *unused) {
   BulwarkEvent *event = malloc(sizeof *event);
 
   if (read(STDIN_FILENO, &event->character, 1) < 0) {
-    fprintf(logFileDescriptor, "Error - could not read character from STDIN_FILENO\n");
+    Log_Error("Could not read character from STDIN_FILENO\n");
     exit(EXIT_FAILURE);
   }
-  fflush(logFileDescriptor);
 
   event->type = BULWARK_EVENT_TYPE_INPUT;
   EventQueue_AddEvent(event);

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdarg.h>
 
 /* Private variables */
 static const uint8_t MAX_QUEUE_POSITION = MAX_EVENTS - 1;
@@ -38,7 +39,7 @@ void EventQueue_AddEvent(const BulwarkEvent *event) {
 
 static void exitWithErrorIfQueueAlreadyFull() {
   if (queue->eventCount == MAX_EVENTS) {
-    printf("Error - queue is already full\n");  
+    Log_Error("Queue is already full, latest events are being dropped.");  
   }
 }
 

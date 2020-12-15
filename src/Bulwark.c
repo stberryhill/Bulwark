@@ -25,7 +25,6 @@ static const char ANSI_SHOW_CURSOR[] = "\x1b[?25l";
 static struct termios termiosBeforeQuickTermInitialized;
 static int windowWidth;
 static int windowHeight;
-static FILE *logFileDescriptor;
 
 /* Private function declarations */
 static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit();
@@ -44,7 +43,7 @@ static void ensureWeStillCleanUpIfProgramStoppedWithCtrlC();
 
 /* Function definitions */
 void Bulwark_Initialize() {
-  logFileDescriptor = fopen("Log.txt", "w");
+  Log_Open();
   storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit();
   ensureWeStillCleanUpIfProgramStoppedWithCtrlC();
   readInitialWindowWidthAndHeight();
@@ -94,10 +93,10 @@ void Bulwark_Quit() {
   clearBufferAndKillScrollback();
   exitAlternateBufferModeSinceWeEnteredUponInitialization();
   restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized();
-  fclose(logFileDescriptor);
 
   Input_StopAsyncThread();
   EventQueue_Destroy();
+  Log_Close();
 }
 
 static void exitAlternateBufferModeSinceWeEnteredUponInitialization() {
