@@ -38,6 +38,8 @@ void Bulwark_WaitForNextEvent(BulwarkEvent *output) {
 }
 
 void Input_StartAsyncThread() {
+  Log_Info("Starting async input thread...");
+
   if (pthread_create(&inputThread, NULL, inputThreadLoop, NULL)) {
     Log_Error("Could not create async input thread");
     exit(EXIT_FAILURE);
@@ -46,6 +48,7 @@ void Input_StartAsyncThread() {
 
 void Input_StopAsyncThread() {
   pthread_exit(NULL);
+  Log_Info("...Stopped async input thread");
 }
 
 static void *inputThreadLoop(void *unused) {
