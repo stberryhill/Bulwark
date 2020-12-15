@@ -27,17 +27,20 @@ typedef struct AnsiColorInfo16 {
   int colorSpecifier;
 } AnsiColorInfo16;
 
-typedef struct BulwarkEventQueue {
+typedef struct EventQueue {
   BulwarkEvent events[MAX_EVENTS];
   int eventCount;
   int writePosition;
   int readPosition;
-} BulwarkEventQueue;
+} EventQueue;
 
-BulwarkEventQueue *BulwarkEventQueue_Create();
-void BulwarkEventQueue_Destroy(BulwarkEventQueue *queueToDestroy);
-void BulwarkEventQueue_AddEvent(BulwarkEventQueue *queue, const BulwarkEvent *event);
-void BulwarkEventQueue_ReadAndConsumeEvent(BulwarkEventQueue *queue, BulwarkEvent *output);
-bool BulwarkEventQueue_IsEmpty(BulwarkEventQueue *queue);
+void EventQueue_Initialize();
+void EventQueue_Destroy();
+void EventQueue_AddEvent(const BulwarkEvent *event);
+void EventQueue_ReadAndConsumeEvent(BulwarkEvent *output);
+bool EventQueue_IsEmpty();
+
+void Input_StartAsyncThread();
+void Input_StopAsyncThread();
 
 #endif

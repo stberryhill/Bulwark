@@ -1,29 +1,31 @@
 #include "Bulwark.h"
 #include "Internal.h"
 
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <signal.h>
+#include <pthread.h>
 
 /* Private variables */
-static BulwarkEventQueue *eventQueue;
+static pthread_t inputThread;
 
 /* Private function declarations */
 static void enableRawInput();
-static void initializeEventQueue();
 static void installTerminalResizeCallback();
 static void terminalResizeCallback(int i);
 static void setupTerminalToSendResizeEventsWhenResized();
+static void *inputThreadLoop(void *unused);
 
 /* Function definitions */
 bool Bulwark_HasEventsInQueue() {
-  return !BulwarkEventQueue_IsEmpty(eventQueue);
+  return !EventQueue_IsEmpty();
 }
 
 void Bulwark_ReadNextEventInQueue(BulwarkEvent *output) {
-  BulwarkEventQueue_ReadAndConsumeEvent(eventQueue, output);
+  EventQueue_ReadAndConsumeEvent(output);
 }
 
 void Bulwark_WaitForNextEvent(BulwarkEvent *output) {
@@ -35,15 +37,35 @@ void Bulwark_WaitForNextEvent(BulwarkEvent *output) {
   output->type = BULWARK_EVENT_TYPE_INPUT;
 }
 
+void Input_StartAsyncThread() {
+  if (pthread_create(&inputThread, NULL, inputThreadLoop, NULL)) {
+    printf("Error - could not create thread a\n");
+    exit(EXIT_FAILURE);
+  }
+}
+
+void Input_StopAsyncThread() {
+  pthread_exit(NULL);
+}
+
+static void *inputThreadLoop(void *unused) {
+  BulwarkEvent *event = malloc(sizeof *event);
+
+  if (read(STDIN_FILENO, &event->character, 1) < 0) {
+    fprintf(logFileDescriptor, "Error - could not read character from STDIN_FILENO\n");
+    exit(EXIT_FAILURE);
+  }
+  fflush(logFileDescriptor);
+
+  event->type = BULWARK_EVENT_TYPE_INPUT;
+  EventQueue_AddEvent(event);
+}
+
 static void enableRawInput() {
   struct termios termiosRaw;
   tcgetattr(STDIN_FILENO, &termiosRaw);
   termiosRaw.c_lflag &= (~ECHO & ~ICANON);
   tcsetattr(STDIN_FILENO, TCSANOW, &termiosRaw);
-}
-
-static void initializeEventQueue() {
-  eventQueue = BulwarkEventQueue_Create();
 }
 
 static void installTerminalResizeCallback() {
@@ -66,7 +88,7 @@ static void terminalResizeCallback(int i) {
   event.newWindowWidth = windowWidth;
   event.newWindowHeight = windowHeight;
 
-  BulwarkEventQueue_AddEvent(eventQueue, &event);
+  EventQueue_AddEvent(&event);
 }
 
 static void setupTerminalToSendResizeEventsWhenResized() {

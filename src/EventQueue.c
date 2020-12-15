@@ -7,14 +7,15 @@
 
 /* Private variables */
 static const uint8_t MAX_QUEUE_POSITION = MAX_EVENTS - 1;
+static EventQueue *queue;
 
 /* Private function declarations */
 static void exitWithErrorIfQueueAlreadyFull();
 static uint8_t getNextQueuePositionFromCurrentPosition(uint8_t currentPosition);
 
 /*  Function definitions */
-BulwarkEventQueue *BulwarkEventQueue_Create() {
-  BulwarkEventQueue *queue = malloc(sizeof *queue);
+void EventQueue_Initialize() {
+  queue = malloc(sizeof *queue);
   queue->eventCount = 0;
   queue->writePosition = 0;
   queue->readPosition = 0;
@@ -22,12 +23,12 @@ BulwarkEventQueue *BulwarkEventQueue_Create() {
   return queue;
 }
 
-void BulwarkEventQueue_Destroy(BulwarkEventQueue *queueToDestroy) {
-  free(queueToDestroy);
+void EventQueue_Destroy() {
+  free(queue);
 }
 
-void BulwarkEventQueue_AddEvent(BulwarkEventQueue *queue, const BulwarkEvent *event) {
-  exitWithErrorIfQueueAlreadyFull(queue);
+void EventQueue_AddEvent(const BulwarkEvent *event) {
+  exitWithErrorIfQueueAlreadyFull();
 
   const int nextPosition = getNextQueuePositionFromCurrentPosition(queue->writePosition);
 
@@ -35,13 +36,13 @@ void BulwarkEventQueue_AddEvent(BulwarkEventQueue *queue, const BulwarkEvent *ev
   queue->eventCount++;
 }
 
-static void exitWithErrorIfQueueAlreadyFull(BulwarkEventQueue *queue) {
+static void exitWithErrorIfQueueAlreadyFull() {
   if (queue->eventCount == MAX_EVENTS) {
     printf("Error - queue is already full\n");  
   }
 }
 
-void BulwarkEventQueue_ReadAndConsumeEvent(BulwarkEventQueue *queue, BulwarkEvent *output) {
+void EventQueue_ReadAndConsumeEvent(BulwarkEvent *output) {
   if (queue->eventCount == 0) {
     return;
   }
@@ -52,7 +53,7 @@ void BulwarkEventQueue_ReadAndConsumeEvent(BulwarkEventQueue *queue, BulwarkEven
   queue->eventCount--;
 }
 
-bool BulwarkEventQueue_IsEmpty(BulwarkEventQueue *queue) {
+bool EventQueue_IsEmpty() {
   return queue->eventCount == 0;
 }
 

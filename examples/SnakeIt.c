@@ -18,7 +18,7 @@ int xorshift32(int seed);
 /* Snake around the terminal, changing colors occasionally */
 void snakeIt() {
     const int MAX_ITERATIONS = 256;
-    const uint64 DELAY_MILLISECONDS = 1;
+    const uint64_t DELAY_MILLISECONDS = 1;
     int iterations = 0;
 
     int x = 0;

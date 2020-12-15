@@ -52,6 +52,9 @@ void Bulwark_Initialize() {
   prepareBuffer();
   initializeEventQueue();
   setupTerminalToSendResizeEventsWhenResized();
+
+  EventQueue_Initialize();
+  Input_StartAsyncThread();
 }
 
 static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit() {
@@ -92,6 +95,9 @@ void Bulwark_Quit() {
   exitAlternateBufferModeSinceWeEnteredUponInitialization();
   restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized();
   fclose(logFileDescriptor);
+
+  Input_StopAsyncThread();
+  EventQueue_Destroy();
 }
 
 static void exitAlternateBufferModeSinceWeEnteredUponInitialization() {
