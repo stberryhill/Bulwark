@@ -23,12 +23,9 @@ static const char ANSI_CLEAR_BUFFER_AND_KILL_SCROLLBACK[] = "2J";
 static const char ANSI_HIDE_CURSOR[] = "\x1b[?25h";
 static const char ANSI_SHOW_CURSOR[] = "\x1b[?25l";
 static struct termios termiosBeforeQuickTermInitialized;
-static int windowWidth;
-static int windowHeight;
 
 /* Private function declarations */
 static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit();
-static void readInitialWindowWidthAndHeight();
 static void enableRawInput();
 static void prepareBuffer();
 static void enterAlternateBufferSoWeDontMessUpPastTerminalHistory();
@@ -46,13 +43,11 @@ void Bulwark_Initialize() {
   Log_Open();
   storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit();
   ensureWeStillCleanUpIfProgramStoppedWithCtrlC();
-  readInitialWindowWidthAndHeight();
   enableRawInput();
   prepareBuffer();
-  initializeEventQueue();
-  setupTerminalToSendResizeEventsWhenResized();
 
   EventQueue_Initialize();
+  Window_StartSizeListener();
   Input_StartAsyncThread();
 }
 
@@ -64,11 +59,11 @@ static void ensureWeStillCleanUpIfProgramStoppedWithCtrlC() {
   atexit(Bulwark_Quit);
 }
 
-static void readInitialWindowWidthAndHeight() {
-  struct winsize windowSize;
-	ioctl(0, TIOCGWINSZ, (char *) &windowSize);
-	windowWidth = windowSize.ws_col;
-  windowHeight = windowSize.ws_row;
+static void enableRawInput() {
+  struct termios termiosRaw;
+  tcgetattr(STDIN_FILENO, &termiosRaw);
+  termiosRaw.c_lflag &= (~ECHO & ~ICANON);
+  tcsetattr(STDIN_FILENO, TCSANOW, &termiosRaw);
 }
 
 static void prepareBuffer() {
@@ -189,12 +184,4 @@ static void generateBackgroundAnsiColorInfoFromColor16(int color16, AnsiColorInf
 
 void Bulwark_ClearForegroundAndBackgroundColor() {
   printf("%s[%dm", ANSI_ESCAPE_SEQUENCE_START, ANSI_CLEAR_FORMATTING);
-}
-
-int Bulwark_GetWindowWidth() {
-  return windowWidth;
-}
-
-int Bulwark_GetWindowHeight() {
-  return windowHeight;
 }

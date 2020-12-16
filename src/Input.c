@@ -13,10 +13,6 @@
 static pthread_t inputThread;
 
 /* Private function declarations */
-static void enableRawInput();
-static void installTerminalResizeCallback();
-static void terminalResizeCallback(int i);
-static void setupTerminalToSendResizeEventsWhenResized();
 static void *inputThreadLoop(void *unused);
 
 /* Function definitions */
@@ -54,45 +50,20 @@ void Input_StopAsyncThread() {
 static void *inputThreadLoop(void *unused) {
   BulwarkEvent *event = malloc(sizeof *event);
 
-  if (read(STDIN_FILENO, &event->character, 1) < 0) {
-    Log_Error("Could not read character from STDIN_FILENO\n");
-    exit(EXIT_FAILURE);
+  bool keepGoing = true;
+  while (keepGoing) {
+    if (read(STDIN_FILENO, &event->character, 1) < 0) {
+      Log_Error("Could not read character from STDIN_FILENO\n");
+      exit(EXIT_FAILURE);
+    }
+
+    if (event->character == EOF) {
+      keepGoing = false;
+    }
+
+    event->type = BULWARK_EVENT_TYPE_INPUT;
+    EventQueue_AddEvent(event);
   }
 
-  event->type = BULWARK_EVENT_TYPE_INPUT;
-  EventQueue_AddEvent(event);
-}
-
-static void enableRawInput() {
-  struct termios termiosRaw;
-  tcgetattr(STDIN_FILENO, &termiosRaw);
-  termiosRaw.c_lflag &= (~ECHO & ~ICANON);
-  tcsetattr(STDIN_FILENO, TCSANOW, &termiosRaw);
-}
-
-static void installTerminalResizeCallback() {
-  /* Our child process will receive the SIGWINCH signal whenever the terminal is resized */
-  signal(SIGWINCH, terminalResizeCallback);
-}
-
-static void terminalResizeCallback(int i) {
-  struct winsize newWindowSize;
-
-	ioctl(1, TIOCGWINSZ, &newWindowSize);
-
-  /* Set these so GetWindowWidth and GetWindowHight functions stay up-to-date. */
-	windowWidth = newWindowSize.ws_col;
-	windowHeight = newWindowSize.ws_row;
-
-  /* Queue window resize event */
-  BulwarkEvent event;
-  event.type = BULWARK_EVENT_TYPE_WINDOW_RESIZE;
-  event.newWindowWidth = windowWidth;
-  event.newWindowHeight = windowHeight;
-
-  EventQueue_AddEvent(&event);
-}
-
-static void setupTerminalToSendResizeEventsWhenResized() {
-  installTerminalResizeCallback();
+  return NULL;
 }

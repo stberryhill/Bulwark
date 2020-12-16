@@ -20,8 +20,6 @@ void EventQueue_Initialize() {
   queue->eventCount = 0;
   queue->writePosition = 0;
   queue->readPosition = 0;
-
-  return queue;
 }
 
 void EventQueue_Destroy() {
