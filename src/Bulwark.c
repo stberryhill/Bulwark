@@ -91,46 +91,6 @@ static void restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized() {
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &termiosBeforeQuickTermInitialized);
 }
 
-void Bulwark_SetForegroundColor16(int color16) {
-  AnsiColorInfo16 ansiForegroundColorInfo;
-
-  generateForegroundAnsiColorInfoFromColor16(color16, &ansiForegroundColorInfo);
-
-  printf("%s[%d%dm", ANSI_ESCAPE_SEQUENCE_START, ansiForegroundColorInfo.brightnessSpecifier, ansiForegroundColorInfo.colorSpecifier);
-}
-
-void Bulwark_SetBackgroundColor16(int color16) {
-  AnsiColorInfo16 ansiBackgroundColorInfo;
-
-  generateBackgroundAnsiColorInfoFromColor16(color16, &ansiBackgroundColorInfo);
-
-  printf("%s[%d%dm", ANSI_ESCAPE_SEQUENCE_START, ansiBackgroundColorInfo.brightnessSpecifier, ansiBackgroundColorInfo.colorSpecifier);
-}
-
-void Bulwark_SetForegroundAndBackgroundColor16(int foregroundColor16, int backgroundColor16) {
-  AnsiColorInfo16 ansiForegroundColorInfo;
-  AnsiColorInfo16 ansiBackgroundColorInfo;
-
-  generateForegroundAnsiColorInfoFromColor16(foregroundColor16, &ansiForegroundColorInfo);
-  generateBackgroundAnsiColorInfoFromColor16(backgroundColor16, &ansiBackgroundColorInfo);
-
-  printf("%s[%d%d;%d%dm", ANSI_ESCAPE_SEQUENCE_START,
-          ansiForegroundColorInfo.brightnessSpecifier, ansiForegroundColorInfo.colorSpecifier,
-          ansiBackgroundColorInfo.brightnessSpecifier, ansiBackgroundColorInfo.colorSpecifier);
-}
-
-void Bulwark_SetForegroundColor256(int color256) {
-  printf("%s[%s;%dm", ANSI_ESCAPE_SEQUENCE_START, ANSI_COLOR256_FOREGROUND_SEQUENCE, color256);
-}
-
-void Bulwark_SetBackgroundColor256(int color256) {
-  printf("%s[%s;%dm", ANSI_ESCAPE_SEQUENCE_START, ANSI_COLOR256_BACKGROUND_SEQUENCE, color256);
-}
-
-void Bulwark_SetForegroundAndBackgroundColor256(int foregroundColor256, int backgroundColor256) {
-  printf("%s[%s;%d;%s;%dm", ANSI_ESCAPE_SEQUENCE_START, ANSI_COLOR256_FOREGROUND_SEQUENCE, foregroundColor256, ANSI_COLOR256_BACKGROUND_SEQUENCE, backgroundColor256);
-}
-
 void Bulwark_SetDrawPosition(int x, int y) {
   printf("%s[%d;%dH", ANSI_ESCAPE_SEQUENCE_START, y+1, x+1);
 }
