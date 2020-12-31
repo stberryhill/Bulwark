@@ -22,17 +22,24 @@
 ```
 
 # Bulwark
-> A much-needed ncurses replacement, written in C89 for maximum portability.
+> A much-needed ncurses alternative, written in C for maximum portability.
 
-Bulwark is a terminal manipulation library meant to be a more modern, slimmed-down replacement for ncurses. The ncurses library is old and unintuitive, having lots of functionality that isn't even useful - and it simply wasn't designed to be used how people use it today. By simplifying and giving functions self-explanatory names, Bulwark aims to be easily discoverable in any mondern code editor.
+Bulwark is a small but powerful library for making terminal apps. It's meant to be a simple ncurses alternative that works exactly how you'd expect. By simplifying and giving functions self-explanatory names, Bulwark aims to be easily discoverable in any mondern code editor.
 
 Some of the goals of Bulwark include:
 * Target only POSIX environments.
-* Provide an asynchronous input event system for real-time terminal apps (games, for example).
 * Support 16, 256, and full RGB colors.
-* Easy use of extended characters for more interesting-looking apps.
-* Throw away all the legacy stuff that nobody uses.
-* Give functions long, self-explanatory names so the library can be discovered during programming, without lots of googling.
+* Support extended character set.
+* Support Async keyboard input through an event queue.
+* Throw away legacy features that no one uses.
+* Be self-documenting in any modern code editor.
+* Be easy to port to other languages.
+* (Eventually) Support mouse events.
+
+## Core Ideas
+* Bulwark does away with row/column coordinates in favor of width/height and x/y.
+* You don't have to define foreground/background pairs, like in ncurses. Can set them individually or together via single function calls.
+* The 16 builtin colors are mapped to the values 0-15 (diagram coming soon).
 
 ## The Plan
-Bulwark is in early stages of development so most of these goals are largely incomplete. The evil plan is to develop a nice/fun app with it during development to showcase it's capabilites. I'm currently working on a simple website in parallel and migrating the build system from hand-written, brittle makefiles to the Autotools (a.k.a. *autoconfiscating* it). Also looking for a good planning tool, might use Trello.
+Bulwark is in early stages of development so most of these goals are incomplete. The plan is to develop a nice/fun app with it during development to showcase it's abilites. I just finished migrating to Autotools for the build system making it much easier to install, and adding 256 color support. Still deciding on a good planning tool to lay down a roadmap.

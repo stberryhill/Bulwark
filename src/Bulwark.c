@@ -10,12 +10,6 @@
 
 /* Private variables */
 static const int ANSI_CLEAR_FORMATTING = 0;
-static const int ANSI_FOREGROUND_BRIGHTNESS_NORMAL = 3;
-static const int ANSI_FOREGROUND_BRIGHTNESS_BOLD = 9;
-static const int ANSI_BACKGROUND_BRIGHTNESS_NORMAL = 4;
-static const int ANSI_BACKGROUND_BRIGHTNESS_BOLD = 10;
-static const char ANSI_COLOR256_FOREGROUND_SEQUENCE[] = "38;5";
-static const char ANSI_COLOR256_BACKGROUND_SEQUENCE[] = "48;5";
 static const char ANSI_ESCAPE_SEQUENCE_START[] = "\x1b";
 static const char ANSI_ENTER_ALTERNATE_BUFFER_MODE[] = "?1049h";
 static const char ANSI_EXIT_ALTERNATE_BUFFER_MODE[] = "?1049l";
@@ -32,9 +26,6 @@ static void enterAlternateBufferSoWeDontMessUpPastTerminalHistory();
 static void exitAlternateBufferModeSinceWeEnteredUponInitialization();
 static void clearBufferAndKillScrollback();
 static void restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized();
-static void generateForegroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output);
-static void generateBackgroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output);
-static void clearBufferAndKillScrollback();
 static void disableBufferingOnStdoutSoPrintfWillGoThroughImmediately();
 static void ensureWeStillCleanUpIfProgramStoppedWithCtrlC();
 
@@ -157,26 +148,6 @@ void Bulwark_SetCursorVisible(bool cursorVisible) {
     printf("%s", ANSI_SHOW_CURSOR);
   } else {
     printf("%s", ANSI_HIDE_CURSOR);
-  }
-}
-
-static void generateForegroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output) {
-  if (color16 < 8) {
-    output->brightnessSpecifier = ANSI_FOREGROUND_BRIGHTNESS_NORMAL;
-    output->colorSpecifier = color16;
-  } else {
-    output->brightnessSpecifier = ANSI_FOREGROUND_BRIGHTNESS_BOLD;
-    output->colorSpecifier = color16 - 8;
-  }
-}
-
-static void generateBackgroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output) {
-  if (color16 < 8) {
-    output->brightnessSpecifier = ANSI_BACKGROUND_BRIGHTNESS_NORMAL;
-    output->colorSpecifier = color16;
-  } else {
-    output->brightnessSpecifier = ANSI_BACKGROUND_BRIGHTNESS_BOLD;
-    output->colorSpecifier = color16 - 8;
   }
 }
 
