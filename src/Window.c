@@ -29,8 +29,8 @@ void Window_StartSizeListener() {
 
 static void readInitialWindowSize() {
   struct winsize windowSize;
-	ioctl(0, TIOCGWINSZ, (char *) &windowSize);
-	windowWidth = windowSize.ws_col;
+  ioctl(0, TIOCGWINSZ, (char *) &windowSize);
+  windowWidth = windowSize.ws_col;
   windowHeight = windowSize.ws_row;
 }
 
@@ -42,11 +42,11 @@ static void installTerminalResizeCallback() {
 static void terminalResizeCallback(int i) {
   struct winsize newWindowSize;
 
-	ioctl(1, TIOCGWINSZ, &newWindowSize);
+  ioctl(1, TIOCGWINSZ, &newWindowSize);
 
   /* Set these so GetWindowWidth and GetWindowHight functions stay up-to-date. */
-	windowWidth = newWindowSize.ws_col;
-	windowHeight = newWindowSize.ws_row;
+  windowWidth = newWindowSize.ws_col;
+  windowHeight = newWindowSize.ws_row;
 
   /* Queue window resize event */
   BulwarkEvent event;
