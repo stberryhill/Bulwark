@@ -20,8 +20,8 @@ static const char ANSI_ESCAPE_SEQUENCE_START[] = "\x1b";
 static const char ANSI_ENTER_ALTERNATE_BUFFER_MODE[] = "?1049h";
 static const char ANSI_EXIT_ALTERNATE_BUFFER_MODE[] = "?1049l";
 static const char ANSI_CLEAR_BUFFER_AND_KILL_SCROLLBACK[] = "2J";
-static const char ANSI_HIDE_CURSOR[] = "\x1b[?25h";
-static const char ANSI_SHOW_CURSOR[] = "\x1b[?25l";
+static const char ANSI_HIDE_CURSOR[] = "\x1b[?25l";
+static const char ANSI_SHOW_CURSOR[] = "\x1b[?25h";
 static struct termios termiosBeforeQuickTermInitialized;
 
 /* Private function declarations */
@@ -48,7 +48,6 @@ void Bulwark_Initialize() {
 
   EventQueue_Initialize();
   Window_StartSizeListener();
-  Input_StartAsyncThread();
 }
 
 static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit() {
@@ -89,7 +88,6 @@ void Bulwark_Quit() {
   exitAlternateBufferModeSinceWeEnteredUponInitialization();
   restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized();
 
-  Input_StopAsyncThread();
   EventQueue_Destroy();
   Log_Close();
 }

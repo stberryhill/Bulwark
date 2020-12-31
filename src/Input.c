@@ -7,13 +7,9 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <signal.h>
-#include <pthread.h>
+#include <poll.h>
 
-/* Private variables */
-static pthread_t inputThread;
-
-/* Private function declarations */
-static void *inputThreadLoop(void *unused);
+#define INPUT_BUFFER_SIZE_BYTES 8
 
 /* Function definitions */
 bool Bulwark_HasEventsInQueue() {
@@ -25,45 +21,46 @@ void Bulwark_ReadNextEventInQueue(BulwarkEvent *output) {
 }
 
 void Bulwark_WaitForNextEvent(BulwarkEvent *output) {
-  if (read(STDIN_FILENO, &output->character, 1) < 0) {
+  BulwarkEvent event;
+
+  if (read(STDIN_FILENO, &event.character, 1) < 0) {
     Log_Error("Could not read character from STDIN_FILENO");
     exit(EXIT_FAILURE);
   }
 
-  output->type = BULWARK_EVENT_TYPE_INPUT;
+  event.type = BULWARK_EVENT_TYPE_INPUT;
+  EventQueue_AddEvent(&event);
+  output->character = event.character;
+  output->type = event.type;
 }
 
-void Input_StartAsyncThread() {
-  Log_Info("Starting async input thread...");
+void Bulwark_PollEvents() {
+  struct pollfd fds;
+  fds.fd = STDIN_FILENO;
+  fds.events = POLLIN; /* POLLIN => There is data to read. */
+  const int numFileDescriptors = 1;
+  const int TIMEOUT = 0;
+  char buffer[INPUT_BUFFER_SIZE_BYTES + 1] = "";
 
-  if (pthread_create(&inputThread, NULL, inputThreadLoop, NULL)) {
-    Log_Error("Could not create async input thread");
+  const int pollReturn = poll(&fds, numFileDescriptors, TIMEOUT);
+  if (pollReturn < 0) {
+    Log_Error("Could not read character from STDIN_FILENO");
     exit(EXIT_FAILURE);
-  }
-}
-
-void Input_StopAsyncThread() {
-  pthread_exit(NULL);
-  Log_Info("...Stopped async input thread");
-}
-
-static void *inputThreadLoop(void *unused) {
-  BulwarkEvent *event = malloc(sizeof *event);
-
-  bool keepGoing = true;
-  while (keepGoing) {
-    if (read(STDIN_FILENO, &event->character, 1) < 0) {
-      Log_Error("Could not read character from STDIN_FILENO\n");
-      exit(EXIT_FAILURE);
+  } else if (pollReturn > 0) {
+    if (fds.revents & POLLIN) {
+      const ssize_t bytesRead = read(fds.fd, buffer, INPUT_BUFFER_SIZE_BYTES);
+      if (bytesRead < 0) {
+        Log_Error("Could not read input from poll.");
+        exit(EXIT_FAILURE);
+      }
+      
+      int i;
+      for (i = 0; i < bytesRead; i++) {
+        BulwarkEvent event;
+        event.type = BULWARK_EVENT_TYPE_INPUT;
+        event.character = buffer[i];
+        EventQueue_AddEvent(&event);
+      }
     }
-
-    if (event->character == EOF) {
-      keepGoing = false;
-    }
-
-    event->type = BULWARK_EVENT_TYPE_INPUT;
-    EventQueue_AddEvent(event);
   }
-
-  return NULL;
 }

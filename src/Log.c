@@ -26,9 +26,11 @@ void Log_Info(const char *message, ...) {
     va_start(variableArgumentList, message);
     
     fprintf(logFile, "[Info] ");
-    fprintf(logFile, message, variableArgumentList);
+    vfprintf(logFile, message, variableArgumentList);
     fprintf(logFile, "\n");
     fflush(logFile);
+
+    va_end(variableArgumentList);
   #endif
 }
 
@@ -38,9 +40,11 @@ void Log_Error(const char *message, ...) {
     va_start(variableArgumentList, message);
 
     fprintf(logFile, "[Error] ");
-    fprintf(logFile, message, variableArgumentList);
+    vfprintf(logFile, message, variableArgumentList);
     fprintf(logFile, "\n");
     fflush(logFile);
+
+    va_end(variableArgumentList);
   #endif
 }
 

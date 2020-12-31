@@ -29,9 +29,8 @@ void EventQueue_Destroy() {
 void EventQueue_AddEvent(const BulwarkEvent *event) {
   exitWithErrorIfQueueAlreadyFull();
 
-  const int nextPosition = getNextQueuePositionFromCurrentPosition(queue->writePosition);
-
-  queue->events[nextPosition] = *event;
+  queue->events[queue->writePosition] = *event;
+  queue->writePosition = getNextQueuePositionFromCurrentPosition(queue->writePosition);
   queue->eventCount++;
 }
 

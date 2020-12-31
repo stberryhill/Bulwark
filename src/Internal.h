@@ -29,9 +29,9 @@ typedef struct AnsiColorInfo16 {
 
 typedef struct EventQueue {
   BulwarkEvent events[MAX_EVENTS];
-  int eventCount;
-  int writePosition;
-  int readPosition;
+  uint8_t eventCount;
+  uint8_t writePosition;
+  uint8_t readPosition;
 } EventQueue;
 
 void EventQueue_Initialize();
@@ -39,9 +39,6 @@ void EventQueue_Destroy();
 void EventQueue_AddEvent(const BulwarkEvent *event);
 void EventQueue_ReadAndConsumeEvent(BulwarkEvent *output);
 bool EventQueue_IsEmpty();
-
-void Input_StartAsyncThread();
-void Input_StopAsyncThread();
 
 void Window_StartSizeListener();
 
