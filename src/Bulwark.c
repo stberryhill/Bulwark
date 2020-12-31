@@ -14,16 +14,12 @@ static const char ANSI_ESCAPE_SEQUENCE_START[] = "\x1b";
 static const char ANSI_ENTER_ALTERNATE_BUFFER_MODE[] = "?1049h";
 static const char ANSI_EXIT_ALTERNATE_BUFFER_MODE[] = "?1049l";
 static const char ANSI_CLEAR_BUFFER_AND_KILL_SCROLLBACK[] = "2J";
-static const char ANSI_HIDE_CURSOR[] = "\x1b[?25h";
-static const char ANSI_SHOW_CURSOR[] = "\x1b[?25l";
+static const char ANSI_HIDE_CURSOR[] = "\x1b[?25l";
+static const char ANSI_SHOW_CURSOR[] = "\x1b[?25h";
 static struct termios termiosBeforeQuickTermInitialized;
-static int windowWidth;
-static int windowHeight;
-static FILE *logFileDescriptor;
 
 /* Private function declarations */
 static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit();
-static void readInitialWindowWidthAndHeight();
 static void enableRawInput();
 static void prepareBuffer();
 static void enterAlternateBufferSoWeDontMessUpPastTerminalHistory();
@@ -35,12 +31,14 @@ static void ensureWeStillCleanUpIfProgramStoppedWithCtrlC();
 
 /* Function definitions */
 void Bulwark_Initialize() {
-  logFileDescriptor = fopen("Log.txt", "w");
+  Log_Open();
   storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit();
   ensureWeStillCleanUpIfProgramStoppedWithCtrlC();
-  readInitialWindowWidthAndHeight();
   enableRawInput();
   prepareBuffer();
+
+  EventQueue_Initialize();
+  Window_StartSizeListener();
 }
 
 static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit() {
@@ -49,13 +47,6 @@ static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit() {
 
 static void ensureWeStillCleanUpIfProgramStoppedWithCtrlC() {
   atexit(Bulwark_Quit);
-}
-
-static void readInitialWindowWidthAndHeight() {
-  struct winsize windowSize;
-	ioctl(0, TIOCGWINSZ, (char *) &windowSize);
-	windowWidth = windowSize.ws_col;
-  windowHeight = windowSize.ws_row;
 }
 
 static void enableRawInput() {
@@ -87,7 +78,9 @@ void Bulwark_Quit() {
   clearBufferAndKillScrollback();
   exitAlternateBufferModeSinceWeEnteredUponInitialization();
   restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized();
-  fclose(logFileDescriptor);
+
+  EventQueue_Destroy();
+  Log_Close();
 }
 
 static void exitAlternateBufferModeSinceWeEnteredUponInitialization() {
@@ -98,14 +91,44 @@ static void restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized() {
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &termiosBeforeQuickTermInitialized);
 }
 
-void Bulwark_WaitForNextEvent(BulwarkEvent *output) {
-  fflush(logFileDescriptor);
-  if (read(STDIN_FILENO, &output->character, 1) < 0) {
-    fprintf(logFileDescriptor, "Error - could not read character from STDIN_FILENO\n");
-    exit(-1);
-  }
-  fflush(logFileDescriptor);
-  output->type = BULWARK_EVENT_TYPE_INPUT;
+void Bulwark_SetForegroundColor16(int color16) {
+  AnsiColorInfo16 ansiForegroundColorInfo;
+
+  generateForegroundAnsiColorInfoFromColor16(color16, &ansiForegroundColorInfo);
+
+  printf("%s[%d%dm", ANSI_ESCAPE_SEQUENCE_START, ansiForegroundColorInfo.brightnessSpecifier, ansiForegroundColorInfo.colorSpecifier);
+}
+
+void Bulwark_SetBackgroundColor16(int color16) {
+  AnsiColorInfo16 ansiBackgroundColorInfo;
+
+  generateBackgroundAnsiColorInfoFromColor16(color16, &ansiBackgroundColorInfo);
+
+  printf("%s[%d%dm", ANSI_ESCAPE_SEQUENCE_START, ansiBackgroundColorInfo.brightnessSpecifier, ansiBackgroundColorInfo.colorSpecifier);
+}
+
+void Bulwark_SetForegroundAndBackgroundColor16(int foregroundColor16, int backgroundColor16) {
+  AnsiColorInfo16 ansiForegroundColorInfo;
+  AnsiColorInfo16 ansiBackgroundColorInfo;
+
+  generateForegroundAnsiColorInfoFromColor16(foregroundColor16, &ansiForegroundColorInfo);
+  generateBackgroundAnsiColorInfoFromColor16(backgroundColor16, &ansiBackgroundColorInfo);
+
+  printf("%s[%d%d;%d%dm", ANSI_ESCAPE_SEQUENCE_START,
+          ansiForegroundColorInfo.brightnessSpecifier, ansiForegroundColorInfo.colorSpecifier,
+          ansiBackgroundColorInfo.brightnessSpecifier, ansiBackgroundColorInfo.colorSpecifier);
+}
+
+void Bulwark_SetForegroundColor256(int color256) {
+  printf("%s[%s;%dm", ANSI_ESCAPE_SEQUENCE_START, ANSI_COLOR256_FOREGROUND_SEQUENCE, color256);
+}
+
+void Bulwark_SetBackgroundColor256(int color256) {
+  printf("%s[%s;%dm", ANSI_ESCAPE_SEQUENCE_START, ANSI_COLOR256_BACKGROUND_SEQUENCE, color256);
+}
+
+void Bulwark_SetForegroundAndBackgroundColor256(int foregroundColor256, int backgroundColor256) {
+  printf("%s[%s;%d;%s;%dm", ANSI_ESCAPE_SEQUENCE_START, ANSI_COLOR256_FOREGROUND_SEQUENCE, foregroundColor256, ANSI_COLOR256_BACKGROUND_SEQUENCE, backgroundColor256);
 }
 
 void Bulwark_SetDrawPosition(int x, int y) {
@@ -130,12 +153,4 @@ void Bulwark_SetCursorVisible(bool cursorVisible) {
 
 void Bulwark_ClearForegroundAndBackgroundColor() {
   printf("%s[%dm", ANSI_ESCAPE_SEQUENCE_START, ANSI_CLEAR_FORMATTING);
-}
-
-int Bulwark_GetWindowWidth() {
-  return windowWidth;
-}
-
-int Bulwark_GetWindowHeight() {
-  return windowHeight;
 }

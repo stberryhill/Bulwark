@@ -5,5 +5,9 @@ libbulwark_la_SOURCES = \
   Bulwark.c \
   Color.c \
   Event.c \
+  EventQueue.c \
+  Window.c \
+  Input.c \
   Internal.h \
+  Log.c \
   Sound.c
