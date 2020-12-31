@@ -17,10 +17,25 @@ void drawString(const int xOffset, const int yOffset, const char *string) {
 
 void draw16Colors(const int xOffset, const int yOffset) {
   int i;
-  for (i = 0; i < 16; i++) {
-    Bulwark_SetForegroundColor16(i);
-    Bulwark_SetDrawPosition(xOffset + i, yOffset);
-    Bulwark_DrawCharacter('#');
+  int colorCode = 0;
+  int y;
+  int lineY = yOffset;
+  for (y = 0; y < 2; y++) {
+    for (i = 0; i < 8 * 3; i += 3) {
+      Bulwark_SetForegroundColor16(colorCode);
+
+      Bulwark_SetDrawPosition(xOffset + i + 2, lineY);
+      Bulwark_DrawCharacter('#');
+
+
+      const int codeOffset = colorCode < 10 ? 2 : 1;
+      Bulwark_SetDrawPosition(xOffset + i + codeOffset, lineY + 1);
+      char colorString[3] = "";
+      sprintf(colorString, "%d", colorCode);
+      Bulwark_DrawString(colorString);
+      colorCode++;
+    }
+    lineY += 3;
   }
 }
 
@@ -40,12 +55,13 @@ int main() {
   Bulwark_Initialize();
 
   const int x = (Bulwark_GetWindowWidth() / 2) - 8;
-  const int y = (Bulwark_GetWindowHeight() / 2) - 10;
+  const int color16X = (Bulwark_GetWindowWidth() / 2) - 12;
+  const int y = (Bulwark_GetWindowHeight() / 2) - 14;
   
   drawString(x, y, "256 color palette");
   draw256Colors(x, y + 1);
-  drawString(x, y + 18, "16 color palette");
-  draw16Colors(x, y + 19);
+  drawString(color16X, y + 18, "16 color palette");
+  draw16Colors(color16X, y + 19);
 
   BulwarkEvent *event = BulwarkEvent_Create();
   bool running = true;
