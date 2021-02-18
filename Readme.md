@@ -45,3 +45,41 @@ The current goals of Bulwark are:
 
 ## The Plan
 Bulwark is in early stages of development so most of these goals are incomplete. The plan is to develop a nice/fun app with it during development to showcase it's abilites.
+
+## How To Use Bulwark
+### Installation
+* Clone this repo
+* Run bootstrap.sh to generate the autotools infrastructure needed to build the project.
+```
+./bootstrap.sh
+```
+* Run autoconf
+```
+./configure
+```
+* Install Bulwark
+```
+make install
+```
+
+### Core Application Loop
+```
+#include <Bulwark.h>
+#include <stdbool.h>
+
+int main() {
+  bool running = true;
+
+  while (running) {
+    // Handle input from Bulwark, decide if the app should keep running.
+
+    // Make draw calls
+
+    Bulwark_UpdateScreen();
+  }
+
+  // Clean up
+
+  return 0;
+}
+```
