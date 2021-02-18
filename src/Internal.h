@@ -34,18 +34,18 @@ typedef struct EventQueue {
   uint8_t readPosition;
 } EventQueue;
 
-typedef struct Frame {
+typedef struct Buffer {
   uint8_t **colorCodes;
   char **characters;
-} Frame;
+} Buffer;
 
-typedef struct FrameChange {
+typedef struct BufferChange {
   uint8_t newColorCode;
   char newCharacter;
   uint16_t positionX;
   uint16_t positionY;
-  struct FrameChange *frameChange;
-} FrameChange;
+  struct BufferChange *frameChange;
+} BufferChange;
 
 void EventQueue_Initialize();
 void EventQueue_Destroy();
@@ -59,5 +59,11 @@ void Log_Open();
 void Log_Info(const char *message, ...);
 void Log_Error(const char *message, ...);
 void Log_Close();
+
+void Buffer_Initialize(const uint16_t width, const uint16_t height);
+void Buffer_Resize(const uint16_t width, const uint16_t height);
+uint8_t Buffer_GetColorCodeAtPosition(const uint16_t x, const uint16_t y);
+char Buffer_GetCharacterAtPosition(const uint16_t x, const uint16_t y);
+void Buffer_SetCharacterAndColorCodeAtPosition(const uint16_t x, const uint16_t y, const char character, const uint8_t colorCode);
 
 #endif
