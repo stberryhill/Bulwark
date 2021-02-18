@@ -34,6 +34,19 @@ typedef struct EventQueue {
   uint8_t readPosition;
 } EventQueue;
 
+typedef struct Frame {
+  uint8_t **colorCodes;
+  char **characters;
+} Frame;
+
+typedef struct FrameChange {
+  uint8_t newColorCode;
+  char newCharacter;
+  uint16_t positionX;
+  uint16_t positionY;
+  struct FrameChange *frameChange;
+} FrameChange;
+
 void EventQueue_Initialize();
 void EventQueue_Destroy();
 void EventQueue_AddEvent(const BulwarkEvent *event);
