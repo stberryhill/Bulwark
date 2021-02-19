@@ -35,6 +35,8 @@ typedef struct EventQueue {
 } EventQueue;
 
 typedef struct Buffer {
+  uint16_t width;
+  uint16_t height;
   uint8_t **colorCodes;
   char **characters;
 } Buffer;
