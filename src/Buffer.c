@@ -1,6 +1,8 @@
 #include "Bulwark.h"
 #include "Internal.h"
 
+#include <stdlib.h>
+
 static const uint8_t CLEAR_COLOR_CODE = 0;
 static const char CLEAR_CHARACTER = ' ';
 
@@ -35,9 +37,10 @@ void Buffer_Resize(const uint16_t width, const uint16_t height) {
       free(buffer->characters[j]);
     }
 
-    /* TODO: reallloc topmost array to new size */
+    buffer->characters = realloc(buffer->characters, height);
+
   } else if (buffer->height < height) {
-    /* TODO: reallloc topmost array to new size */
+    buffer->characters = realloc(buffer->characters, height);
 
     int j;
     for (j = buffer->height; j < height; j++) {
