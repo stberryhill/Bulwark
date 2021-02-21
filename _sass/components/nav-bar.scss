@@ -1,0 +1,21 @@
+.nav-bar {
+  background-color: #ffffff;
+  text-align: center;
+  font-size: 0.9em;
+  padding: 0.5em;
+}
+
+.nav-bar ul li {
+  display: inline;
+  margin-left: 0.7em;
+  margin-right: 0.7em;
+}
+
+.nav-bar ul {
+  list-style-type: none;
+}
+
+.nav-bar a {
+  color: #444444;
+  text-decoration: none;
+}

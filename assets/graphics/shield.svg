@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="78.115356mm"
+   height="80.274139mm"
+   viewBox="0 0 78.115357 80.27414"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="Bulwark-shield.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.60436261"
+     inkscape:cx="-29.872027"
+     inkscape:cy="495.02511"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     inkscape:window-width="1904"
+     inkscape:window-height="1000"
+     inkscape:window-x="8"
+     inkscape:window-y="35"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-72.516163,-42.984049)">
+    <path
+       id="path884"
+       style="opacity:0.99;fill:#869685;fill-opacity:1;stroke-width:0.264583"
+       inkscape:transform-center-x="2.5383541e-06"
+       inkscape:transform-center-y="9.2454781"
+       d="m 72.516204,47.670844 c -0.0656,-6.24889 78.115316,-6.24923 78.115316,0 0,53.771786 -32.80844,75.587346 -39.05766,75.587346 -6.24923,0 -38.477286,-20.32382 -39.057656,-75.587346 z"
+       sodipodi:nodetypes="ssss" />
+    <path
+       id="path887"
+       style="opacity:0.99;fill:#909f8f;fill-opacity:1;stroke-width:0.247921"
+       inkscape:transform-center-y="8.5258712"
+       d="m 73.387664,49.142514 c -0.0625,-5.76251 74.375116,-5.76282 74.375116,0 0,49.58656 -31.23756,69.704136 -37.18756,69.704136 -5.95001,0 -36.634986,-18.74195 -37.187556,-69.704136 z"
+       sodipodi:nodetypes="ssss" />
+    <path
+       sodipodi:type="star"
+       style="opacity:0.99;fill:#909f8f;fill-opacity:1;stroke-width:0.264583"
+       id="path889"
+       sodipodi:sides="3"
+       sodipodi:cx="109.91563"
+       sodipodi:cy="73.14402"
+       sodipodi:r1="17.908323"
+       sodipodi:r2="8.9541616"
+       sodipodi:arg1="0.4851009"
+       sodipodi:arg2="1.5322984"
+       inkscape:flatsided="true"
+       inkscape:rounded="0.08"
+       inkscape:randomized="0"
+       d="m 125.75783,81.494629 c -1.1571,2.19516 -29.672627,3.29349 -30.995144,1.193837 -1.322517,-2.099653 11.984064,-27.343993 14.463674,-27.4395 2.47962,-0.09551 17.68856,24.050503 16.53147,26.245663 z"
+       inkscape:transform-center-x="-0.32989572"
+       inkscape:transform-center-y="-3.613564" />
+    <path
+       sodipodi:type="star"
+       style="opacity:0.99;fill:#e09502;fill-opacity:1;stroke-width:0.222263"
+       id="path911"
+       sodipodi:sides="4"
+       sodipodi:cx="111.30508"
+       sodipodi:cy="77.963371"
+       sodipodi:r1="15.505268"
+       sodipodi:r2="10.963879"
+       sodipodi:arg1="0"
+       sodipodi:arg2="0.78539816"
+       inkscape:flatsided="true"
+       inkscape:rounded="0.04"
+       inkscape:randomized="0"
+       d="m 126.81034,77.963371 c 0,0.877111 -14.62815,15.505268 -15.50526,15.505268 -0.87711,0 -15.505271,-14.628157 -15.505271,-15.505268 0,-0.87711 14.628161,-15.505268 15.505271,-15.505268 0.87711,0 15.50526,14.628158 15.50526,15.505268 z"
+       inkscape:transform-center-x="2.135447e-06"
+       inkscape:transform-center-y="-1.3923499e-06" />
+  </g>
+</svg>

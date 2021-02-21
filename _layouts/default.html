@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/Bulwark/assets/styles/main.css">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Raleway');
+    </style> 
+    <title>{{ page.title }} - {{ site.title }}</title>
+</head>
+<body>
+  <div class="banner"><p>No linking necessary, simply include Bulwark.h</p></div>
+  <nav class="nav-bar">
+      <ul class="nav-links">
+          <li><a href="/Bulwark/" {% if page.title == "Home" %}class="active-page"{% endif %}>Home</a></li>
+          <li><a href="/Bulwark/about" {% if page.title == "About" %}class="active-page"{% endif %}>About</a></li>
+          <li><a href="/Bulwark/contact" {% if page.title == "Contact" %}class="active-page"{% endif %}>Contact</a></li>
+      </ul>
+  </nav>
+  <div class="logo">
+    <img href="/Bulwark/assets/graphics/logo.svg">
+    <h1>Bulwark.</h1>
+    <p>A much-needed ncurses alternative.</p>
+    <a href="https://github.com/stberryhill/Bulwark"><div class="button">Download on github</div></a>
+  </div>
+  <div class="content-wrapper">
+    <main class="page-content">
+        {{content}}
+    </main>
+    <div>
+    </div>
+  </div>
+</body>
+<footer>
+  Made with Jekyll and hosted via github-pages.
+</footer>
+</html>
