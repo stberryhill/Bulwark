@@ -2,6 +2,7 @@
 #include "Internal.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #define WITH ";"
 #define FG_256 "38;5;"
@@ -16,8 +17,51 @@
 /* Private function declarations */
 static void generateForegroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output);
 static void generateBackgroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output);
+static void setForegroundColor16(int color16);
+static void setBackgroundColor16(int color16);
+static void setForegroundAndBackgroundColor16(int foregroundColor16, int backgroundColor16);
+static void setForegroundColor256(int color256);
+static void setBackgroundColor256(int color256);
+static void setForegroundAndBackgroundColor256(int foregroundColor256, int backgroundColor256);
 
-void Bulwark_SetForegroundColor16(int color16) {
+/* Function definitions */
+void Bulwark_SetForegroundColor(const BulwarkColor *color) {
+  /* TODO: Implement */
+}
+
+void Bulwark_SetBackgroundColor(const BulwarkColor *color) {
+  /* TODO: Implement */
+}
+
+void Bulwark_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor, const BulwarkColor *backgroundColor) {
+  /* TODO: Implement */
+}
+
+void Bulwark_Immediate_SetForegroundColor(const BulwarkColor *color) {
+  if (color->mode == BULWARK_COLOR_MODE_16) {
+    setForegroundColor16(color->color16);
+  } eles if (color->mode == BULWARK_COLOR_MODE_256) {
+    setForegroundColor256(color->color256);
+  }
+}
+
+void Bulwark_Immediate_SetBackgroundColor(const BulwarkColor *color) {
+  if (color->mode == BULWARK_COLOR_MODE_16) {
+    setBackgroundColor16(color->color16);
+  } eles if (color->mode == BULWARK_COLOR_MODE_256) {
+    setBackgroundColor256(color->color256);
+  }
+}
+
+void Bulwark_Immediate_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor, const BulwarkColor *backgroundColor) {
+  if (foregroundColor->mode == BULWARK_COLOR_MODE_16) {
+    setForegroundAndBackgroundColor16(foregroundColor->color16, backgroundColor->color16);
+  } eles if (foregroundColor->mode == BULWARK_COLOR_MODE_256) {
+    setForegroundAndBackgroundColor256(foregroundColor->color256, backgroundColor->color256);
+  }
+}
+
+static void setForegroundColor16(int color16) {
   AnsiColorInfo16 ansiForegroundColorInfo;
 
   generateForegroundAnsiColorInfoFromColor16(color16, &ansiForegroundColorInfo);
@@ -25,7 +69,7 @@ void Bulwark_SetForegroundColor16(int color16) {
   printf(ansi("%d%d"), ansiForegroundColorInfo.brightnessSpecifier, ansiForegroundColorInfo.colorSpecifier);
 }
 
-void Bulwark_SetBackgroundColor16(int color16) {
+static void setBackgroundColor16(int color16) {
   AnsiColorInfo16 ansiBackgroundColorInfo;
 
   generateBackgroundAnsiColorInfoFromColor16(color16, &ansiBackgroundColorInfo);
@@ -33,7 +77,7 @@ void Bulwark_SetBackgroundColor16(int color16) {
   printf(ansi("%d%d"), ansiBackgroundColorInfo.brightnessSpecifier, ansiBackgroundColorInfo.colorSpecifier);
 }
 
-void Bulwark_SetForegroundAndBackgroundColor16(int foregroundColor16, int backgroundColor16) {
+static void setForegroundAndBackgroundColor16(int foregroundColor16, int backgroundColor16) {
   AnsiColorInfo16 ansiForegroundColorInfo;
   AnsiColorInfo16 ansiBackgroundColorInfo;
 
@@ -45,15 +89,15 @@ void Bulwark_SetForegroundAndBackgroundColor16(int foregroundColor16, int backgr
           ansiBackgroundColorInfo.brightnessSpecifier, ansiBackgroundColorInfo.colorSpecifier);
 }
 
-void Bulwark_SetForegroundColor256(int color256) {
+static void setForegroundColor256(int color256) {
   printf(ansi(FG_256 "%d"), color256);
 }
 
-void Bulwark_SetBackgroundColor256(int color256) {
+static void setBackgroundColor256(int color256) {
   printf(ansi(BG_256 "%d"), color256);
 }
 
-void Bulwark_SetForegroundAndBackgroundColor256(int foregroundColor256, int backgroundColor256) {
+static void setForegroundAndBackgroundColor256(int foregroundColor256, int backgroundColor256) {
   printf(ansi(FG_256 "%d" WITH BG_256 "%d"), foregroundColor256, backgroundColor256);
 }
 

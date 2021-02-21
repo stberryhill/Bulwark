@@ -13,6 +13,28 @@ typedef enum BulwarkEventType {
   BULWARK_EVENT_TYPE_WINDOW_RESIZE
 } BulwarkEventType;
 
+enum BulwarkColorMode {
+  BULWARK_COLOR_MODE_16,
+  BULWARK_COLOR_MODE_256,
+  BULWARK_COLOR_MODE_RGB,
+  BULWARK_COLOR_MODE_COUNT
+}
+
+typedef struct BulwarkColor {
+  /* Color to use for 16-color mode */
+  uint8_t color16;
+
+  /* Color to use for 256-color mode */
+  uint8_t color256;
+
+  /* Color to use for full RGB mode (Not yet implemented) */
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+
+  enum BulwarkColorMode mode;
+} BulwarkColor;
+
 /* Setup/teardown functions */
 void Bulwark_Initialize();
 void Bulwark_Quit();
@@ -28,13 +50,16 @@ BulwarkEventType BulwarkEvent_GetType(BulwarkEvent *event);
 char BulwarkEvent_GetCharacter(BulwarkEvent *event);
 
 /* Color functions */
-void Bulwark_SetForegroundColor16(int color16);
-void Bulwark_SetBackgroundColor16(int color16);
-void Bulwark_SetForegroundAndBackgroundColor16(int foregroundColor16, int backgroundColor16);
-void Bulwark_SetForegroundColor256(int color256);
-void Bulwark_SetBackgroundColor256(int color256);
-void Bulwark_SetForegroundAndBackgroundColor256(int foregroundColor256, int backgroundColor256);
+void Bulwark_SetForegroundColor(const BulwarkColor *color);
+void Bulwark_SetBackgroundColor(const BulwarkColor *color);
+void Bulwark_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor, const BulwarkColor *backgroundColor);
 void Bulwark_ClearForegroundAndBackgroundColor();
+
+/* Immediate color functions */
+void Bulwark_Immediate_SetForegroundColor(const BulwarkColor *color);
+void Bulwark_Immediate_SetBackgroundColor(const BulwarkColor *color);
+void Bulwark_Immediate_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor, const BulwarkColor *backgroundColor);
+void Bulwark_Immediate_ClearForegroundAndBackgroundColor();
 
 /* Drawing functions */
 void Bulwark_DrawCharacter(int x, int y, char character);
