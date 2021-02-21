@@ -29,8 +29,8 @@ Bulwark is a small but powerful library for making terminal apps. It's meant to 
 Some of the goals of Bulwark include:
 * Target only POSIX environments.
 * Support 16, 256, and full RGB colors.
-* Support extended character set.
-* Support Async keyboard input through an event queue.
+* Support ascii and unicode characters
+* Support non-blocking keyboard input through an event queue.
 * Throw away legacy features that no one uses.
 * Be self-documenting in any modern code editor.
 * Be easy to port to other languages.
@@ -41,8 +41,14 @@ Some of the goals of Bulwark include:
 * You don't have to define foreground/background pairs, like in ncurses. Can set them individually or together via single function calls.
 * The 16 builtin colors are mapped to the values 0-15 (diagram coming soon).
 
-## The Plan
-Bulwark is in early stages of development so most of these goals are incomplete. The plan is to develop a nice/fun app with it during development to showcase it's abilites. I just finished migrating to Autotools for the build system making it much easier to install, and adding 256 color support. Still deciding on a good planning tool to lay down a roadmap.
+## Feature Status
+- [x] Base 16 colors
+- [x] 256 colors
+- [x] Non-blocking input via event queue
+- [ ] Diff rendering
+- [ ] Mouse events
+- [ ] Full RGB colors
+- [ ] Unicode characters
 
 ## How To Use Bulwark
 ### Installation
@@ -61,7 +67,7 @@ make install
 ```
 
 ### Core Application Loop
-```
+```c
 #include <Bulwark.h>
 #include <stdbool.h>
 
