@@ -91,15 +91,29 @@ static void restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized() {
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &termiosBeforeQuickTermInitialized);
 }
 
-void Bulwark_SetDrawPosition(int x, int y) {
+void Bulwark_DrawCharacter(int x, int y, char character) {
+  if(Buffer_GetCharacterAtPosition(x, y) != character) {
+    /* TODO: Add change to buffer change list */
+  }
+}
+
+void Bulwark_DrawString(int x, int y, const char *string) { printf("%s", string);;
+  /* TODO: Implement */
+}
+
+void Bulwark_UpdateScreen() {
+  /* TODO: Draw all changes to buffer */
+}
+
+void Bulwark_Immediate_SetDrawPosition(int x, int y) {
   printf("%s[%d;%dH", ANSI_ESCAPE_SEQUENCE_START, y+1, x+1);
 }
 
-void Bulwark_DrawCharacter(char character) {
+void Bulwark_Immediate_DrawCharacter(char character) {
   putchar(character);
 }
 
-void Bulwark_DrawString(const char *string) {
+void Bulwark_Immediate_DrawString(const char *string) {
   printf("%s", string);;
 }
 

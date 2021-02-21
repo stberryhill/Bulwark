@@ -37,9 +37,14 @@ void Bulwark_SetForegroundAndBackgroundColor256(int foregroundColor256, int back
 void Bulwark_ClearForegroundAndBackgroundColor();
 
 /* Drawing functions */
-void Bulwark_SetDrawPosition(int x, int y);
-void Bulwark_DrawCharacter(char character);
-void Bulwark_DrawString(const char *string);
+void Bulwark_DrawCharacter(int x, int y, char character);
+void Bulwark_DrawString(int x, int y, const char *string);
+void Bulwark_UpdateScreen();
+
+/* Immediate drawing functions */
+void Bulwark_Immediate_SetDrawPosition(int x, int y) {
+void Bulwark_Immediate_DrawCharacter(char character);
+void Bulwark_Immediate_DrawString(const char *string);
 
 /* Cursor style functions */
 void Bulwark_SetCursorVisible(bool cursorVisible);
