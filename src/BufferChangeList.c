@@ -1,8 +1,11 @@
 #include "Bulwark.h"
 #include "Internal.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 /* Private variables */
-static BufferChangeList bufferChangeList;
+static BufferChangeList *bufferChangeList;
 
 /* Private function declarations */
 static BufferChangeList *createList();
@@ -62,7 +65,7 @@ void BufferChangeList_Clear() {
     /* TODO: implement */
 }
 
-void *BufferChangeList_AddChange(const BufferChange box) {
+void BufferChangeList_AddChange(const BufferChange box) {
     addChangeToList(bufferChangeList, box);
 }
 
