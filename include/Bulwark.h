@@ -18,7 +18,7 @@ enum BulwarkColorMode {
   BULWARK_COLOR_MODE_256,
   BULWARK_COLOR_MODE_RGB,
   BULWARK_COLOR_MODE_COUNT
-}
+};
 
 typedef struct BulwarkColor {
   /* Color to use for 16-color mode */
@@ -67,7 +67,7 @@ void Bulwark_DrawString(int x, int y, const char *string);
 void Bulwark_UpdateScreen();
 
 /* Immediate drawing functions */
-void Bulwark_Immediate_SetDrawPosition(int x, int y) {
+void Bulwark_Immediate_SetDrawPosition(int x, int y);
 void Bulwark_Immediate_DrawCharacter(char character);
 void Bulwark_Immediate_DrawString(const char *string);
 

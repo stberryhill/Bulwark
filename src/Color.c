@@ -40,7 +40,7 @@ void Bulwark_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor
 void Bulwark_Immediate_SetForegroundColor(const BulwarkColor *color) {
   if (color->mode == BULWARK_COLOR_MODE_16) {
     setForegroundColor16(color->color16);
-  } eles if (color->mode == BULWARK_COLOR_MODE_256) {
+  } else if (color->mode == BULWARK_COLOR_MODE_256) {
     setForegroundColor256(color->color256);
   }
 }
@@ -48,7 +48,7 @@ void Bulwark_Immediate_SetForegroundColor(const BulwarkColor *color) {
 void Bulwark_Immediate_SetBackgroundColor(const BulwarkColor *color) {
   if (color->mode == BULWARK_COLOR_MODE_16) {
     setBackgroundColor16(color->color16);
-  } eles if (color->mode == BULWARK_COLOR_MODE_256) {
+  } else if (color->mode == BULWARK_COLOR_MODE_256) {
     setBackgroundColor256(color->color256);
   }
 }
@@ -56,7 +56,7 @@ void Bulwark_Immediate_SetBackgroundColor(const BulwarkColor *color) {
 void Bulwark_Immediate_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor, const BulwarkColor *backgroundColor) {
   if (foregroundColor->mode == BULWARK_COLOR_MODE_16) {
     setForegroundAndBackgroundColor16(foregroundColor->color16, backgroundColor->color16);
-  } eles if (foregroundColor->mode == BULWARK_COLOR_MODE_256) {
+  } else if (foregroundColor->mode == BULWARK_COLOR_MODE_256) {
     setForegroundAndBackgroundColor256(foregroundColor->color256, backgroundColor->color256);
   }
 }

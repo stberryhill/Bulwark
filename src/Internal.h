@@ -29,7 +29,7 @@ typedef struct AnsiColorInfo16 {
 } AnsiColorInfo16;
 
 typedef struct EventQueue {
-  BulwarkEvent events[MAX_EVENTS];
+  struct BulwarkEvent events[MAX_EVENTS];
   uint8_t eventCount;
   uint8_t writePosition;
   uint8_t readPosition;
@@ -57,7 +57,7 @@ typedef struct BufferChangeList {
 typedef struct BufferChangeListNode {
   struct BufferChangeListNode *next;
   struct BufferChangeListNode *prev;
-  struct BufferChange data;
+  struct BufferChange *data;
 } BufferChangeListNode;
 
 void EventQueue_Initialize();
@@ -84,6 +84,6 @@ void BufferChangeList_Destroy();
 BufferChangeListNode *BufferChangeList_GetHead();
 int BufferChangeList_GetSize();
 void BufferChangeList_Clear();
-void *BufferChangeList_AddChange(const BufferChange box);
+void BufferChangeList_AddChange(const BufferChange box);
 
 #endif
