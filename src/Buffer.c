@@ -67,7 +67,7 @@ void Buffer_Resize(const uint16_t width, const uint16_t height) {
     int j;
     for (j = 0; j < height; j++) {
       /* Just a simple realloc */
-      buffer->characters[j] = realloc(buffer->characters[j], width * (sizeof *buffer->characters[j][0]));
+      buffer->characters[j] = realloc(buffer->characters[j], width * (sizeof buffer->characters[j][0]));
     }
   }
 
