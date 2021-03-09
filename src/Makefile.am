@@ -10,4 +10,6 @@ libbulwark_la_SOURCES = \
   Input.c \
   Internal.h \
   Log.c \
+  BufferChangeList.c \
+  Buffer.c \
   Sound.c
