@@ -63,7 +63,7 @@ void Bulwark_Immediate_ClearForegroundAndBackgroundColor();
 
 /* Drawing functions */
 void Bulwark_DrawCharacter(int x, int y, char character);
-void Bulwark_DrawString(int x, int y, const char *string);
+void Bulwark_DrawString(int x, int y, const char *string, uint16_t stringLength);
 void Bulwark_UpdateScreen();
 
 /* Immediate drawing functions */
