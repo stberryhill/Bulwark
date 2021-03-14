@@ -23,6 +23,7 @@
 
 static uint32_t currentForegroundColor;
 static uint32_t currentBackgroundColor;
+static uint32_t currentClearColor;
 
 /* Private function declarations */
 static void generateForegroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output);
@@ -82,12 +83,20 @@ void Bulwark_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor
   currentBackgroundColor = Color_GenerateColorCodeForColor(backgroundColor);
 }
 
-uint16_t Color_GetForegroundColor() {
+uint32_t Color_GetForegroundColorCode() {
   return currentForegroundColor;
 }
 
-uint16_t Color_GetBackgroundColor() {
+uint32_t Color_GetBackgroundColorCode() {
   return currentBackgroundColor;
+}
+
+void Bulwark_SetClearColor(const BulwarkColor *color) {
+  currentClearColor = Color_GenerateColorCodeForColor(color);
+}
+
+uint32_t Color_GetClearColorCode() {
+  return currentClearColor;
 }
 
 void Bulwark_Immediate_SetForegroundColor(const BulwarkColor *color) {

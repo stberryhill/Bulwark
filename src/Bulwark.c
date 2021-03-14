@@ -19,6 +19,7 @@ static const char ANSI_SHOW_CURSOR[] = "\x1b[?25h";
 static struct termios termiosBeforeQuickTermInitialized;
 
 /* Private function declarations */
+static void setClearColorAndBackgroundColorToBlackInitially();
 static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit();
 static void enableRawInput();
 static void prepareBuffer();
@@ -39,6 +40,17 @@ void Bulwark_Initialize() {
 
   EventQueue_Initialize();
   Window_StartSizeListener();
+  setClearColorAndBackgroundColorToBlackInitially();
+  Buffer_Initialize(Bulwark_GetWindowWidth(), Bulwark_GetWindowHeight());
+  BufferChangeList_Initialize();
+}
+
+static void setClearColorAndBackgroundColorToBlackInitially() {
+  BulwarkColor color;
+  color.mode = BULWARK_COLOR_MODE_16;
+  color.color16 = BULWARK_COLOR16_BLACK;
+  Bulwark_SetClearColor(&color);
+  Bulwark_SetBackgroundColor(&color);
 }
 
 static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit() {
@@ -75,6 +87,8 @@ static void disableBufferingOnStdoutSoPrintfWillGoThroughImmediately() {
 }
 
 void Bulwark_Quit() {
+  Buffer_Destroy();
+  BufferChangeList_Destroy();
   clearBufferAndKillScrollback();
   exitAlternateBufferModeSinceWeEnteredUponInitialization();
   restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized();
@@ -119,6 +133,11 @@ void Bulwark_DrawString(int x, int y, const char *string, uint16_t stringLength)
   }
 }
 
+void Bulwark_ClearScreen() {
+  BufferChangeList_Clear(); /* Clear change list to aovid confusing behavior of screen clearing but still drawing changes added before clearing the screen */
+  Buffer_MarkWholeBufferDirty();
+}
+
 void Bulwark_UpdateScreen() {
   BufferChangeListNode *node = BufferChangeList_GetHead();
 
@@ -137,8 +156,28 @@ void Bulwark_UpdateScreen() {
       Bulwark_Immediate_DrawCharacter(change->newCharacter);
 
       /* Update buffer contents to match screen */
-      Buffer_SetCharacterAndColorCodeAtPosition(change->positionX, change->positionY, change->newCharacter, change->newForegroundColor, change->newBackgroundColor);
+      Buffer_SetCharacterAndColorCodesAtPosition(change->positionX, change->positionY, change->newCharacter, change->newForegroundColor, change->newBackgroundColor);
     } while ((node = node->next) != NULL);
+  }
+
+
+  const uint32_t clearColorCode = Color_GetClearColorCode();
+  BulwarkColor clearColor;
+  Color_ExtractColorFromCode(clearColorCode, &clearColor);
+  const char clearCharacter = ' ';
+
+  /* TODO: cashs current colors so we can restore after clearing here */
+  /* TODO: Provide method to set foreground and background by color code instead of BulwarkColor */
+  Bulwark_Immediate_SetForegroundAndBackgroundColor(&clearColor, &clearColor);
+  int y;
+  for (y = 0; y < Bulwark_GetWindowHeight(); y++) {
+    int x;
+    for (x = 0; x < Bulwark_GetWindowWidth(); x++) {
+      if (Buffer_IsDirtyAtPosition(x, y)) {
+        Bulwark_DrawCharacter(x, y, clearCharacter);
+        Buffer_SetCharacterAndColorCodesAtPosition(x, y, clearCharacter, clearColorCode, clearColorCode);
+      }
+    }
   }
 }
 

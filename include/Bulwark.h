@@ -52,6 +52,7 @@ char BulwarkEvent_GetCharacter(BulwarkEvent *event);
 /* Color functions */
 void Bulwark_SetForegroundColor(const BulwarkColor *color);
 void Bulwark_SetBackgroundColor(const BulwarkColor *color);
+void Bulwark_SetClearColor(const BulwarkColor *color);
 void Bulwark_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor, const BulwarkColor *backgroundColor);
 void Bulwark_ClearForegroundAndBackgroundColor();
 
@@ -64,6 +65,7 @@ void Bulwark_Immediate_ClearForegroundAndBackgroundColor();
 /* Drawing functions */
 void Bulwark_DrawCharacter(int x, int y, char character);
 void Bulwark_DrawString(int x, int y, const char *string, uint16_t stringLength);
+void Bulwark_ClearScreen();
 void Bulwark_UpdateScreen();
 
 /* Immediate drawing functions */
