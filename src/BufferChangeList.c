@@ -65,8 +65,8 @@ void BufferChangeList_Clear() {
     /* TODO: implement */
 }
 
-void BufferChangeList_AddChange(const BufferChange box) {
-    addChangeToList(bufferChangeList, box);
+void BufferChangeList_AddChange(const BufferChange change) {
+    addChangeToList(bufferChangeList, change);
 }
 
 BufferChange *addChangeToList(BufferChangeList *list, const BufferChange change) {

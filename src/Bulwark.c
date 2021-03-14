@@ -92,17 +92,54 @@ static void restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized() {
 }
 
 void Bulwark_DrawCharacter(int x, int y, char character) {
-  if(Buffer_GetCharacterAtPosition(x, y) != character) {
-    /* TODO: Add change to buffer change list */
+  const bool characterIsDifferentThanBuffer = Buffer_GetCharacterAtPosition(x, y) != character;
+  const bool foregroundColorIsDifferentThanBuffer = Buffer_GetForegroundColorCodeAtPosition(x, y) != Color_GetForegroundColorCode();
+  const bool backgroundColorIsDifferentThanBuffer = Buffer_GetBackgroundColorCodeAtPosition(x, y) != Color_GetBackgroundColorCode();
+
+  if(characterIsDifferentThanBuffer || foregroundColorIsDifferentThanBuffer || backgroundColorIsDifferentThanBuffer) {
+    BufferChange change;
+    change.newCharacter = character;
+    change.newForegroundColor = Color_GetForegroundColorCode();
+    change.newBackgroundColor = Color_GetBackgroundColorCode();
+    change.positionX = x;
+    change.positionY = y;
+    BufferChangeList_AddChange(change);
   }
 }
 
-void Bulwark_DrawString(int x, int y, const char *string) { printf("%s", string);;
-  /* TODO: Implement */
+void Bulwark_DrawString(int x, int y, const char *string, uint16_t stringLength) {
+  if (stringLength > Bulwark_GetWindowWidth()) {
+    Log_Error("Can't draw string because length is greater than total terminal width. Total width is %d, string length is %d", Bulwark_GetWindowWidth(), stringLength);
+    exit(-1);
+  }
+
+  int i;
+  for (i = 0; i < stringLength; i++) {
+    Bulwark_DrawCharacter(x + i, y, string[i]);
+  }
 }
 
 void Bulwark_UpdateScreen() {
-  /* TODO: Draw all changes to buffer */
+  BufferChangeListNode *node = BufferChangeList_GetHead();
+
+  BulwarkColor foregroundColor;
+  BulwarkColor backgroundColor;
+  BufferChange *change;
+  if (BufferChangeList_GetSize() > 0) {
+    do {
+      /* TODO: Optimize. */
+      change = node->data;
+      Color_ExtractColorFromCode(change->newForegroundColor, &foregroundColor);
+      Color_ExtractColorFromCode(change->newBackgroundColor, &backgroundColor);
+
+      Bulwark_Immediate_SetForegroundAndBackgroundColor(&foregroundColor, &backgroundColor);
+      Bulwark_Immediate_SetDrawPosition(change->positionX, change->positionY);
+      Bulwark_Immediate_DrawCharacter(change->newCharacter);
+
+      /* Update buffer contents to match screen */
+      Buffer_SetCharacterAndColorCodeAtPosition(change->positionX, change->positionY, change->newCharacter, change->newForegroundColor, change->newBackgroundColor);
+    } while ((node = node->next) != NULL);
+  }
 }
 
 void Bulwark_Immediate_SetDrawPosition(int x, int y) {
