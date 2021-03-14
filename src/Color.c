@@ -9,7 +9,7 @@
 #define BG_256 "48;5;"
 #define ansi(sequence) "\x1b[" sequence "m"
 
-#define COLOR_MODE_MASK   0xFF000000
+#define COLOR_MODE_MASK   0x0F000000
 #define COLOR_RED_MASK    0x00FF0000
 #define COLOR_BLUE_MASK   0x0000FF00
 #define COLOR_GREEN_MASK  0x000000FF
