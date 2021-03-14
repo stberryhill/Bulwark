@@ -76,14 +76,19 @@ void Log_Error(const char *message, ...);
 void Log_Close();
 
 void Buffer_Initialize(const uint16_t width, const uint16_t height);
+void Buffer_Destroy();
 void Buffer_Resize(const uint16_t width, const uint16_t height);
 uint32_t Buffer_GetForegroundColorCodeAtPosition(const uint16_t x, const uint16_t y);
 uint32_t Buffer_GetBackgroundColorCodeAtPosition(const uint16_t x, const uint16_t y);
 char Buffer_GetCharacterAtPosition(const uint16_t x, const uint16_t y);
-void Buffer_SetCharacterAndColorCodeAtPosition(const uint16_t x, const uint16_t y, const char character, const uint16_t foregroundColorCode, const uint16_t backgroundColorCode);
+void Buffer_SetCharacterAndColorCodesAtPosition(const uint16_t x, const uint16_t y, const char character, const uint16_t foregroundColorCode, const uint16_t backgroundColorCode);
+void Buffer_MarkWholeBufferDirty();
+void Buffer_MarkDirtyAtPosition(const uint16_t x, const uint16_t y);
+bool Buffer_IsDirtyAtPosition(const uint16_t x, const uint16_t y);
 
 uint32_t Color_GetForegroundColorCode();
 uint32_t Color_GetBackgroundColorCode();
+uint32_t Color_GetClearColorCode();
 uint32_t Color_GenerateColorCodeForColor(const BulwarkColor *color);
 void Color_ExtractColorFromCode(uint32_t colorCode, BulwarkColor *result);
 

@@ -30,6 +30,21 @@ void Buffer_Initialize(const uint16_t width, const uint16_t height) {
   buffer->height = height;
 }
 
+void Buffer_Destroy() {
+  /* Free inner arrays first */
+  int y;
+  for (y = 0; y < buffer->height; y++) {
+    free(buffer->characters[y]);
+    free(buffer->foregroundColorCodes[y]);
+    free(buffer->backgroundColorCodes[y]);
+  }
+
+  /* Free outer arrays last */
+  free(buffer->characters);
+  free(buffer->foregroundColorCodes);
+  free(buffer->backgroundColorCodes);
+}
+
 void Buffer_Resize(const uint16_t width, const uint16_t height) {
   /* First, resize height */
   if (buffer->height > height) {
@@ -95,4 +110,24 @@ void Buffer_SetCharacterAndColorCodesAtPosition(const uint16_t x, const uint16_t
   buffer->characters[y][x] = character;
   buffer->foregroundColorCodes[y][x] = foregroundColorCode;
   buffer->backgroundColorCodes[y][x] = backgroundColorCode;
+}
+
+void Buffer_MarkWholeBufferDirty() {
+  int y;
+  for (y = 0; y < buffer->height; y++) {
+    int x;
+    for (x = 0; x < buffer->width; x++) {
+      Buffer_MarkDirtyAtPosition(x, y);
+    }
+  }
+}
+
+void Buffer_MarkDirtyAtPosition(const uint16_t x, const uint16_t y) {
+  /* Uses (otherwise unused) topmost bit of background color code as dirty flag for this position. Dirty positions will be cleared when screen is updated. */
+  buffer->backgroundColorCodes[y][x] |= (1 << 31);
+}
+
+bool Buffer_IsDirtyAtPosition(const uint16_t x, const uint16_t y) {
+  /* Check if position is dirty by checking the dirty flag. Topmost bit of background color code. */
+  return (buffer->backgroundColorCodes[y][x] & (1 << 31)) != 0;
 }
