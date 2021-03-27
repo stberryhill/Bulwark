@@ -1,7 +1,7 @@
 ## Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([Bulwark],[0.2],[sean.tyler.berryhill@gmail.com])
+AC_INIT([Bulwark],[0.3],[sean.tyler.berryhill@gmail.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AC_CONFIG_HEADERS([config.h])
