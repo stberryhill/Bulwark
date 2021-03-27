@@ -38,8 +38,8 @@ typedef struct EventQueue {
 typedef struct Buffer {
   uint16_t width;
   uint16_t height;
-  uint16_t **foregroundColorCodes;
-  uint16_t **backgroundColorCodes;
+  uint32_t **foregroundColorCodes;
+  uint32_t **backgroundColorCodes;
   char **characters;
 } Buffer;
 
@@ -53,6 +53,7 @@ typedef struct BufferChange {
 
 typedef struct BufferChangeList {
   struct BufferChangeListNode *head;
+  struct BufferChangeListNode *lastNode;
   int size;
 } BufferChangeList;
 
@@ -83,8 +84,9 @@ uint32_t Buffer_GetBackgroundColorCodeAtPosition(const uint16_t x, const uint16_
 char Buffer_GetCharacterAtPosition(const uint16_t x, const uint16_t y);
 void Buffer_SetCharacterAndColorCodesAtPosition(const uint16_t x, const uint16_t y, const char character, const uint16_t foregroundColorCode, const uint16_t backgroundColorCode);
 void Buffer_MarkWholeBufferDirty();
-void Buffer_MarkDirtyAtPosition(const uint16_t x, const uint16_t y);
-bool Buffer_IsDirtyAtPosition(const uint16_t x, const uint16_t y);
+void Buffer_MarkUpToDateAtPosition(const uint16_t x, const uint16_t y);
+void Buffer_MarkOutdatedAtPosition(const uint16_t x, const uint16_t y);
+bool Buffer_IsUpToDateAtPosition(const uint16_t x, const uint16_t y);
 
 uint32_t Color_GetForegroundColorCode();
 uint32_t Color_GetBackgroundColorCode();
@@ -95,6 +97,7 @@ void Color_ExtractColorFromCode(uint32_t colorCode, BulwarkColor *result);
 void BufferChangeList_Initialize();
 void BufferChangeList_Destroy();
 BufferChangeListNode *BufferChangeList_GetHead();
+BufferChangeListNode *BufferChangeList_GetLastNode();
 int BufferChangeList_GetSize();
 void BufferChangeList_Clear();
 void BufferChangeList_AddChange(const BufferChange change);

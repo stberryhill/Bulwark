@@ -60,15 +60,15 @@ void Color_ExtractColorFromCode(uint32_t colorCode, BulwarkColor *result) {
   result->mode = mode;
   
   if (mode == BULWARK_COLOR_MODE_16) {
-      const uint8_t color16 = (colorCode & COLOR_16_MASK) << 0;
+      const uint8_t color16 = (colorCode & COLOR_16_MASK) >> 0;
       result->color16 = color16;
   } else if (mode ==BULWARK_COLOR_MODE_256) {
-      const uint8_t color256 = (colorCode & COLOR_256_MASK) << 0;
+      const uint8_t color256 = (colorCode & COLOR_256_MASK) >> 0;
       result->color256 = color256;
   } else if (mode == BULWARK_COLOR_MODE_RGB) {
-      const uint8_t red = (colorCode & COLOR_RED_MASK) << 16;
-      const uint8_t green = (colorCode & COLOR_GREEN_MASK) << 8;
-      const uint8_t blue = (colorCode & COLOR_BLUE_MASK) << 0;
+      const uint8_t red = (colorCode & COLOR_RED_MASK) >> 16;
+      const uint8_t green = (colorCode & COLOR_GREEN_MASK) >> 8;
+      const uint8_t blue = (colorCode & COLOR_BLUE_MASK) >> 0;
       result->r = red;
       result->g = green;
       result->b = blue;

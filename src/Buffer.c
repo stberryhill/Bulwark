@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-static const uint8_t CLEAR_COLOR_CODE = 0;
+static const uint32_t CLEAR_COLOR_CODE = 0 | (1 << 31);
 static const char CLEAR_CHARACTER = ' ';
 
 static Buffer *buffer;
@@ -11,18 +11,22 @@ static Buffer *buffer;
 void Buffer_Initialize(const uint16_t width, const uint16_t height) {
   buffer = malloc(sizeof *buffer);
 
-  buffer->characters = malloc(height * (sizeof buffer->characters));
-  buffer->foregroundColorCodes = malloc(height * (sizeof buffer->characters));
+  buffer->characters = malloc(height * (sizeof *buffer->characters));
+  buffer->foregroundColorCodes = malloc(height * (sizeof *buffer->foregroundColorCodes));
+  buffer->backgroundColorCodes = malloc(height * (sizeof *buffer->backgroundColorCodes));
 
   int j;
   for (j = 0; j < height; j++) {
     buffer->characters[j] = malloc(width * (sizeof *buffer->characters[j]));
-    buffer->foregroundColorCodes[j] = malloc(width * (sizeof *buffer->characters[j]));
+    buffer->foregroundColorCodes[j] = malloc(width * (sizeof *buffer->foregroundColorCodes[j]));
+    buffer->backgroundColorCodes[j] = malloc(width * (sizeof *buffer->backgroundColorCodes[j]));
+
 
     int i;
     for (i = 0; i < width; i++) {
       buffer->characters[j][i] = CLEAR_CHARACTER;
       buffer->foregroundColorCodes[j][i] = CLEAR_COLOR_CODE;
+      buffer->backgroundColorCodes[j][i] = CLEAR_COLOR_CODE;
     }
   }
 
@@ -117,17 +121,21 @@ void Buffer_MarkWholeBufferDirty() {
   for (y = 0; y < buffer->height; y++) {
     int x;
     for (x = 0; x < buffer->width; x++) {
-      Buffer_MarkDirtyAtPosition(x, y);
+      Buffer_MarkUpToDateAtPosition(x, y);
     }
   }
 }
 
-void Buffer_MarkDirtyAtPosition(const uint16_t x, const uint16_t y) {
+void Buffer_MarkUpToDateAtPosition(const uint16_t x, const uint16_t y) {
   /* Uses (otherwise unused) topmost bit of background color code as dirty flag for this position. Dirty positions will be cleared when screen is updated. */
   buffer->backgroundColorCodes[y][x] |= (1 << 31);
 }
 
-bool Buffer_IsDirtyAtPosition(const uint16_t x, const uint16_t y) {
+void Buffer_MarkOutdatedAtPosition(const uint16_t x, const uint16_t y) {
+  buffer->backgroundColorCodes[y][x] &= 0x0FFFFFFF;
+}
+
+bool Buffer_IsUpToDateAtPosition(const uint16_t x, const uint16_t y) {
   /* Check if position is dirty by checking the dirty flag. Topmost bit of background color code. */
-  return (buffer->backgroundColorCodes[y][x] & (1 << 31)) != 0;
+  return (buffer->backgroundColorCodes[y][x] & 0xF0000000) != 0;
 }
