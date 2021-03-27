@@ -9,11 +9,11 @@ static BufferChangeList *bufferChangeList;
 
 /* Private function declarations */
 static BufferChangeList *createList();
-static void destroyList(BufferChangeList *list);
+static void freeListItems(BufferChangeList *list);
 static BufferChangeListNode * getListHead(BufferChangeList *list);
+static BufferChangeListNode *getLastNodeOfList(BufferChangeList *list);
 static int getListSize(BufferChangeList *list);
 static BufferChange *addChangeToList(BufferChangeList *list, const BufferChange change);
-
 
 /* Function definitions */
 void BufferChangeList_Initialize() {
@@ -23,16 +23,18 @@ void BufferChangeList_Initialize() {
 BufferChangeList *createList() {
     BufferChangeList *list = malloc(sizeof *list);
     list->head = 0;
+    list->lastNode = 0;
     list->size = 0;
 
     return list;
 }
 
 void BufferChangeList_Destroy() {
-    destroyList(bufferChangeList);
+    freeListItems(bufferChangeList);
+    free(bufferChangeList);
 }
 
-void destroyList(BufferChangeList *list) {
+void freeListItems(BufferChangeList *list) {
     if (list) {
         BufferChangeListNode *n = list->head;
         int i;
@@ -43,14 +45,25 @@ void destroyList(BufferChangeList *list) {
             n = next;
         }
     }
+    
+    list->lastNode = 0;
+    list->size = 0;
 }
 
 BufferChangeListNode *BufferChangeList_GetHead() {
     return getListHead(bufferChangeList);
 }
 
-BufferChangeListNode * getListHead(BufferChangeList *list) {
+BufferChangeListNode *getListHead(BufferChangeList *list) {
     return list->head;
+}
+
+BufferChangeListNode *BufferChangeList_GetLastNode() {
+    return getLastNodeOfList(bufferChangeList);
+}
+
+BufferChangeListNode *getLastNodeOfList(BufferChangeList *list) {
+    return list->lastNode;
 }
 
 int BufferChangeList_GetSize() {
@@ -62,7 +75,7 @@ int getListSize(BufferChangeList *list) {
 }
 
 void BufferChangeList_Clear() {
-    /* TODO: implement */
+    freeListItems(bufferChangeList);
 }
 
 void BufferChangeList_AddChange(const BufferChange change) {
@@ -90,6 +103,7 @@ BufferChange *addChangeToList(BufferChangeList *list, const BufferChange change)
         node->next = newNode;
     }
 
+    list->lastNode = newNode;
     list->size++;
 
     return newNode->data;
