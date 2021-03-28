@@ -15,6 +15,6 @@ AM_LDFLAGS = \
 
 ## Recommended to have as few of the sources here as possible.
 unittests_SOURCES = \
-  UnitTests.c
+  ImmediateFunctionTests.c
 
 AUTOMAKE_OPTIONS = subdir-objects

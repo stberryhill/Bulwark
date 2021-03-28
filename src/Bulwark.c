@@ -17,8 +17,10 @@ static const char ANSI_CLEAR_BUFFER_AND_KILL_SCROLLBACK[] = "2J";
 static const char ANSI_HIDE_CURSOR[] = "\x1b[?25l";
 static const char ANSI_SHOW_CURSOR[] = "\x1b[?25h";
 static struct termios termiosBeforeQuickTermInitialized;
+static bool screenShouldBeCleared;
 
 /* Private function declarations */
+static void setClearColorAndBackgroundColorToBlackInitially();
 static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit();
 static void enableRawInput();
 static void prepareBuffer();
@@ -39,6 +41,17 @@ void Bulwark_Initialize() {
 
   EventQueue_Initialize();
   Window_StartSizeListener();
+  setClearColorAndBackgroundColorToBlackInitially();
+  Buffer_Initialize(Bulwark_GetWindowWidth(), Bulwark_GetWindowHeight());
+  BufferChangeList_Initialize();
+}
+
+static void setClearColorAndBackgroundColorToBlackInitially() {
+  BulwarkColor color;
+  color.mode = BULWARK_COLOR_MODE_16;
+  color.color16 = BULWARK_COLOR16_BLACK;
+  Bulwark_SetClearColor(&color);
+  Bulwark_SetBackgroundColor(&color);
 }
 
 static void storeTerminalSettingsSoWeCanRestoreThemWhenWeQuit() {
@@ -75,12 +88,15 @@ static void disableBufferingOnStdoutSoPrintfWillGoThroughImmediately() {
 }
 
 void Bulwark_Quit() {
+  Buffer_Destroy();
+  BufferChangeList_Destroy();
   clearBufferAndKillScrollback();
   exitAlternateBufferModeSinceWeEnteredUponInitialization();
   restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized();
 
   EventQueue_Destroy();
   Log_Close();
+  Bulwark_SetCursorVisible(true);
 }
 
 static void exitAlternateBufferModeSinceWeEnteredUponInitialization() {
@@ -91,15 +107,117 @@ static void restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized() {
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &termiosBeforeQuickTermInitialized);
 }
 
-void Bulwark_SetDrawPosition(int x, int y) {
+void Bulwark_DrawCharacter(int x, int y, char character) {
+  if (x < 0 || y < 0 || x >= Bulwark_GetWindowWidth() || y >= Bulwark_GetWindowHeight()) {
+    return;
+  }
+  
+  const bool characterIsDifferentThanBuffer = Buffer_GetCharacterAtPosition(x, y) != character;
+  const bool foregroundColorIsDifferentThanBuffer = Buffer_GetForegroundColorCodeAtPosition(x, y) != Color_GetForegroundColorCode();
+  const bool backgroundColorIsDifferentThanBuffer = Buffer_GetBackgroundColorCodeAtPosition(x, y) != Color_GetBackgroundColorCode();
+
+  if(characterIsDifferentThanBuffer || foregroundColorIsDifferentThanBuffer || backgroundColorIsDifferentThanBuffer) {
+    BufferChange change;
+    change.newCharacter = character;
+    change.newForegroundColor = Color_GetForegroundColorCode();
+    change.newBackgroundColor = Color_GetBackgroundColorCode();
+    change.positionX = x;
+    change.positionY = y;
+    BufferChangeList_AddChange(change);
+  } else {
+    Buffer_MarkUpToDateAtPosition(x, y);
+  }
+}
+
+void Bulwark_DrawString(int x, int y, const char *string, uint16_t stringLength) {
+  if (stringLength > Bulwark_GetWindowWidth()) {
+    Log_Error("Can't draw string because length is greater than total terminal width. Total width is %d, string length is %d", Bulwark_GetWindowWidth(), stringLength);
+    exit(-1);
+  }
+
+  int i;
+  for (i = 0; i < stringLength; i++) {
+    Bulwark_DrawCharacter(x + i, y, string[i]);
+  }
+}
+
+void Bulwark_ClearScreen() {
+  BufferChangeList_Clear(); /* Clear change list to aovid confusing behavior of screen clearing but still drawing changes added before clearing the screen */
+  screenShouldBeCleared = true;
+}
+
+void Bulwark_UpdateScreen() {
+  BufferChangeListNode *node = BufferChangeList_GetLastNode();
+
+  BulwarkColor foregroundColor;
+  BulwarkColor backgroundColor;
+  BufferChange *change;
+  
+  /* Loop through changes backwards, drawing only if needed. Changes to the same position won't be drawn, only latest change at position is drawn. */
+  if (BufferChangeList_GetSize() > 0) {
+    do {
+      /* TODO: Optimize. */
+      change = node->data;
+      if (!Buffer_IsUpToDateAtPosition(change->positionX, change->positionY)) {
+        Log_Info("Drawing at (%d, %d) color: %d", change->positionX, change->positionY, change->newBackgroundColor & 0x000000FF);
+        Color_ExtractColorFromCode(change->newForegroundColor, &foregroundColor);
+        Color_ExtractColorFromCode(change->newBackgroundColor, &backgroundColor);
+
+        Bulwark_Immediate_SetForegroundAndBackgroundColor(&foregroundColor, &backgroundColor);
+        Bulwark_Immediate_SetDrawPosition(change->positionX, change->positionY);
+        Bulwark_Immediate_DrawCharacter(change->newCharacter);
+
+        /* Update buffer contents to match screen */
+        Buffer_SetCharacterAndColorCodesAtPosition(change->positionX, change->positionY, change->newCharacter, change->newForegroundColor, change->newBackgroundColor);
+        Buffer_MarkUpToDateAtPosition(change->positionX, change->positionY);
+      } else {
+        Log_Info("Not drawing at (%d, %d) - already drawn", change->positionX, change->positionY);
+      }
+      
+    } while ((node = node->prev) != NULL);
+
+    BufferChangeList_Clear();
+  }
+
+  if (screenShouldBeCleared) {
+    const uint32_t clearColorCode = Color_GetClearColorCode();
+    BulwarkColor clearColor;
+    Color_ExtractColorFromCode(clearColorCode, &clearColor);
+    const char clearCharacter = ' ';
+
+    /* TODO: cashs current colors so we can restore after clearing here */
+    /* TODO: Provide method to set foreground and background by color code instead of BulwarkColor */
+    Bulwark_Immediate_SetForegroundAndBackgroundColor(&clearColor, &clearColor);
+    int y;
+    for (y = 0; y < Bulwark_GetWindowHeight(); y++) {
+      int x;
+      for (x = 0; x < Bulwark_GetWindowWidth(); x++) {
+        if (!Buffer_IsUpToDateAtPosition(x, y)) {
+          if(Buffer_GetCharacterAtPosition(x, y) != clearCharacter || Buffer_GetForegroundColorCodeAtPosition(x, y) != clearColorCode || Buffer_GetBackgroundColorCodeAtPosition(x, y) != clearColorCode) {
+            Log_Info("Clearing...");
+            Bulwark_Immediate_SetDrawPosition(x, y);
+            Bulwark_Immediate_DrawCharacter(clearCharacter);
+            Buffer_SetCharacterAndColorCodesAtPosition(x, y, clearCharacter, clearColorCode, clearColorCode);
+          }
+        } else {
+          Buffer_MarkOutdatedAtPosition(x, y);
+        }
+      }
+    }
+
+    screenShouldBeCleared = false;
+  }
+}
+
+void Bulwark_Immediate_SetDrawPosition(int x, int y) {
   printf("%s[%d;%dH", ANSI_ESCAPE_SEQUENCE_START, y+1, x+1);
 }
 
-void Bulwark_DrawCharacter(char character) {
+void Bulwark_Immediate_DrawCharacter(char character) {
   putchar(character);
 }
 
-void Bulwark_DrawString(const char *string) {
+void Bulwark_Immediate_DrawString(const char *string) {
   printf("%s", string);;
 }
 

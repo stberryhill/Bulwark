@@ -101,7 +101,7 @@ void setDrawPosition() {
   sprintf(expected, "%c[%d;%dH", ANSI_ESCAPE_CODE, POSITION_Y + 1, POSITION_X + 1);
 
   redirectStdoutToOutputFile();
-  Bulwark_SetDrawPosition(POSITION_X, POSITION_Y);
+  Bulwark_Immediate_SetDrawPosition(POSITION_X, POSITION_Y);
   restoreStdoutToNormal();
 
   Kibi_AssertTrue(equal(readLatestFromOutputFile(), expected));
@@ -115,7 +115,7 @@ void setBackgroundColor16() {
   char actual[MAX_OUTPUT_LENGTH] = "";
   sprintf(expected, "%c[%d%dm", ANSI_ESCAPE_CODE, brightnessSpecifier, colorSpecifier);
 
-  interceptOutput(Bulwark_SetBackgroundColor16(COLOR16), actual);
+  interceptOutput(Bulwark_Immediate_SetBackgroundColor16(COLOR16), actual);
 
   Kibi_AssertTrue(equal(actual, expected));
 }
@@ -128,7 +128,7 @@ void setForegroundColor16() {
   char actual[MAX_OUTPUT_LENGTH] = "";
   sprintf(expected, "%c[%d%dm", ANSI_ESCAPE_CODE, brightnessSpecifier, colorSpecifier);
 
-  interceptOutput(Bulwark_SetForegroundColor16(COLOR16), actual);
+  interceptOutput(Bulwark_Immediate_SetForegroundColor16(COLOR16), actual);
 
   Kibi_AssertTrue(equal(actual, expected));
 }
@@ -142,7 +142,7 @@ void setForegroundAndBackgroundColor16() {
   char actual[MAX_OUTPUT_LENGTH] = "";
   sprintf(expected, "%c[%d%d;%d%dm", ANSI_ESCAPE_CODE, foregroundBrightness, colorSpecifier, backgroundBrightness, colorSpecifier);
 
-  interceptOutput(Bulwark_SetForegroundAndBackgroundColor16(COLOR16, COLOR16), actual);
+  interceptOutput(Bulwark_Immediate_SetForegroundAndBackgroundColor16(COLOR16, COLOR16), actual);
 
   Kibi_AssertTrue(equal(actual, expected));
 }
@@ -153,7 +153,7 @@ void setForegroundColor256() {
   char actual[MAX_OUTPUT_LENGTH] = "";
   sprintf(expected, "%c[38;5;%dm", ANSI_ESCAPE_CODE, COLOR256);
 
-  interceptOutput(Bulwark_SetForegroundColor256(COLOR256), actual);
+  interceptOutput(Bulwark_Immediate_SetForegroundColor256(COLOR256), actual);
 
   Kibi_AssertTrue(equal(actual, expected));
 }
@@ -164,7 +164,7 @@ void setBackgroundColor256() {
   char actual[MAX_OUTPUT_LENGTH] = "";
   sprintf(expected, "%c[48;5;%dm", ANSI_ESCAPE_CODE, COLOR256);
 
-  interceptOutput(Bulwark_SetBackgroundColor256(COLOR256), actual);
+  interceptOutput(Bulwark_Immediate_SetBackgroundColor256(COLOR256), actual);
 
   Kibi_AssertTrue(equal(actual, expected));
 }
@@ -176,7 +176,7 @@ void setForegroundAndBackgroundColor256() {
   char actual[MAX_OUTPUT_LENGTH] = "";
   sprintf(expected, "%c[38;5;%d;48;5;%dm", ANSI_ESCAPE_CODE, FOREGROUND256, BACKGROUND256);
 
-  interceptOutput(Bulwark_SetForegroundAndBackgroundColor256(FOREGROUND256, BACKGROUND256), actual);
+  interceptOutput(Bulwark_Immediate_SetForegroundAndBackgroundColor256(FOREGROUND256, BACKGROUND256), actual);
 
   Kibi_AssertTrue(equal(actual, expected));
 }
@@ -186,7 +186,7 @@ void clearForegroundAndBackgroundColor() {
   char actual[MAX_OUTPUT_LENGTH] = "";
   sprintf(expected, "%c[%dm", ANSI_ESCAPE_CODE, 0);
 
-  interceptOutput(Bulwark_ClearForegroundAndBackgroundColor(), actual);
+  interceptOutput(Bulwark_Immediate_ClearForegroundAndBackgroundColor(), actual);
 
   Kibi_AssertTrue(equal(actual, expected));
 }
@@ -195,7 +195,7 @@ void drawCharacter() {
   const char expected = 'c';
   char actual[2] = "";
 
-  interceptOutput(Bulwark_DrawCharacter(expected), actual);
+  interceptOutput(Bulwark_Immediate_DrawCharacter(expected), actual);
 
   Kibi_AssertTrue(expected == actual[0]);
 }
@@ -204,7 +204,7 @@ void drawString() {
   const char *expected = "string";
   char actual[MAX_OUTPUT_LENGTH] = "";
 
-  interceptOutput(Bulwark_DrawString(expected), actual);
+  interceptOutput(Bulwark_Immediate_DrawString(expected), actual);
 
   Kibi_AssertTrue(equal(expected, actual));
 }
