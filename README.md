@@ -33,8 +33,7 @@ The current goals of Bulwark are:
 * Support ascii and unicode characters
 * Have a decent rendering algorithm efficient enough for games.
 * Throw away legacy features no one uses.
-* Be self-documenting in modern code editors.
-* Be easy to port to other languages.
+* Be easy to port.
 
 ## Core Ideas
 * Bulwark does away with row/column coordinates in favor of width/height and x/y.
