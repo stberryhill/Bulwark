@@ -66,6 +66,10 @@ BulwarkEventType BULWARK_API BulwarkEvent_GetType(BulwarkEvent *event);
 char BULWARK_API BulwarkEvent_GetCharacter(BulwarkEvent *event);
 
 /* Color functions */
+BULWARK_API BulwarkColor *BulwarkColor_Create16(uint8_t color16);
+BULWARK_API BulwarkColor *BulwarkColor_Create256ByCode(uint8_t colorCode256);
+BULWARK_API BulwarkColor *BulwarkColor_Create256(uint8_t r, uint8_t g, uint8_t b);
+BULWARK_API void BulwarkColor_Destroy(BulwarkColor *color);
 BULWARK_API void Bulwark_SetForegroundColor(const BulwarkColor *color);
 BULWARK_API void Bulwark_SetBackgroundColor(const BulwarkColor *color);
 BULWARK_API void Bulwark_SetClearColor(const BulwarkColor *color);
