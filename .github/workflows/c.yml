@@ -13,11 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: bootstrap
-      run: ./bootstrap.sh
     - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
+      run: cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -H~/ -B~/build
+    - name: build
+      run: cmake --build ~/build --config MinSizeRel --target all
