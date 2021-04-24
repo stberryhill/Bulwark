@@ -5,6 +5,9 @@ on:
     branches:
       - master
       - release/*
+      - chore/*
+      - feat/*
+      - fix/*
 
 jobs:
   build:
@@ -14,6 +17,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: configure
-      run: cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -H~/ -B~/build
+      run: cmake --no-warn-unused-cli -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -H./ -B./build
     - name: build
-      run: cmake --build ~/build --config MinSizeRel --target all
+      run: cmake --build ./build --config MinSizeRel --target all
