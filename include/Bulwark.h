@@ -1,10 +1,26 @@
 #ifndef _BULWARK_H
 #define _BULWARK_H
 
-#include "Color16Definitions.h"
-
+#include "BulwarkAPIMacro.h"
 #include <stdint.h>
 #include <stdbool.h>
+
+#define BULWARK_COLOR16_BLACK 0
+#define BULWARK_COLOR16_RED 1
+#define BULWARK_COLOR16_GREEN 2
+#define BULWARK_COLOR16_YELLOW 3
+#define BULWARK_COLOR16_BLUE 4
+#define BULWARK_COLOR16_MAGENTA 5
+#define BULWARK_COLOR16_CYAN 6
+#define BULWARK_COLOR16_WHITE 7
+#define BULWARK_COLOR16_GRAY 8
+#define BULWARK_COLOR16_BRIGHT_RED 9
+#define BULWARK_COLOR16_BRIGHT_GREEN 10
+#define BULWARK_COLOR16_BRIGHT_YELLOW 11
+#define BULWARK_COLOR16_BRIGHT_BLUE 12
+#define BULWARK_COLOR16_BRIGHT_MAGENTA 13
+#define BULWARK_COLOR16_BRIGHT_CYAN 14
+#define BULWARK_COLOR16_BRIGHT_WHITE 15
 
 typedef struct BulwarkEvent BulwarkEvent;
 
@@ -36,51 +52,51 @@ typedef struct BulwarkColor {
 } BulwarkColor;
 
 /* Setup/teardown functions */
-void Bulwark_Initialize();
-void Bulwark_Quit();
+BULWARK_API void Bulwark_Initialize();
+BULWARK_API void Bulwark_Quit();
 
 /* Event functions */
-void Bulwark_PollEvents();
-bool Bulwark_HasEventsInQueue();
-void Bulwark_ReadNextEventInQueue(BulwarkEvent *output);
-void Bulwark_WaitForNextEvent(BulwarkEvent *output);
-BulwarkEvent *BulwarkEvent_Create();
-void BulwarkEvent_Destroy(BulwarkEvent *event);
-BulwarkEventType BulwarkEvent_GetType(BulwarkEvent *event);
-char BulwarkEvent_GetCharacter(BulwarkEvent *event);
+void BULWARK_API Bulwark_PollEvents();
+bool BULWARK_API Bulwark_HasEventsInQueue();
+void BULWARK_API Bulwark_ReadNextEventInQueue(BulwarkEvent *output);
+void BULWARK_API Bulwark_WaitForNextEvent(BulwarkEvent *output);
+BulwarkEvent BULWARK_API *BulwarkEvent_Create();
+void BULWARK_API BulwarkEvent_Destroy(BulwarkEvent *event);
+BulwarkEventType BULWARK_API BulwarkEvent_GetType(BulwarkEvent *event);
+char BULWARK_API BulwarkEvent_GetCharacter(BulwarkEvent *event);
 
 /* Color functions */
-void Bulwark_SetForegroundColor(const BulwarkColor *color);
-void Bulwark_SetBackgroundColor(const BulwarkColor *color);
-void Bulwark_SetClearColor(const BulwarkColor *color);
-void Bulwark_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor, const BulwarkColor *backgroundColor);
-void Bulwark_ClearForegroundAndBackgroundColor();
+BULWARK_API void Bulwark_SetForegroundColor(const BulwarkColor *color);
+BULWARK_API void Bulwark_SetBackgroundColor(const BulwarkColor *color);
+BULWARK_API void Bulwark_SetClearColor(const BulwarkColor *color);
+BULWARK_API void Bulwark_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor, const BulwarkColor *backgroundColor);
+BULWARK_API void Bulwark_ClearForegroundAndBackgroundColor();
 
 /* Immediate color functions */
-void Bulwark_Immediate_SetForegroundColor(const BulwarkColor *color);
-void Bulwark_Immediate_SetBackgroundColor(const BulwarkColor *color);
-void Bulwark_Immediate_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor, const BulwarkColor *backgroundColor);
-void Bulwark_Immediate_ClearForegroundAndBackgroundColor();
+BULWARK_API void Bulwark_Immediate_SetForegroundColor(const BulwarkColor *color);
+BULWARK_API void Bulwark_Immediate_SetBackgroundColor(const BulwarkColor *color);
+BULWARK_API void Bulwark_Immediate_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor, const BulwarkColor *backgroundColor);
+BULWARK_API void Bulwark_Immediate_ClearForegroundAndBackgroundColor();
 
 /* Drawing functions */
-void Bulwark_DrawCharacter(int x, int y, char character);
-void Bulwark_DrawString(int x, int y, const char *string, uint16_t stringLength);
-void Bulwark_ClearScreen();
-void Bulwark_UpdateScreen();
+BULWARK_API void Bulwark_DrawCharacter(int x, int y, char character);
+BULWARK_API void Bulwark_DrawString(int x, int y, const char *string, uint16_t stringLength);
+BULWARK_API void Bulwark_ClearScreen();
+BULWARK_API void Bulwark_UpdateScreen();
 
 /* Immediate drawing functions */
-void Bulwark_Immediate_SetDrawPosition(int x, int y);
-void Bulwark_Immediate_DrawCharacter(char character);
-void Bulwark_Immediate_DrawString(const char *string);
+BULWARK_API void Bulwark_Immediate_SetDrawPosition(int x, int y);
+BULWARK_API void Bulwark_Immediate_DrawCharacter(char character);
+BULWARK_API void Bulwark_Immediate_DrawString(const char *string);
 
 /* Cursor style functions */
-void Bulwark_SetCursorVisible(bool cursorVisible);
+BULWARK_API void Bulwark_SetCursorVisible(bool cursorVisible);
 
 /* Window functions */
-int Bulwark_GetWindowWidth();
-int Bulwark_GetWindowHeight();
+BULWARK_API int Bulwark_GetWindowWidth();
+BULWARK_API int Bulwark_GetWindowHeight();
 
 /* Sound functions */
-void Bulwark_PlayBellSound();
+BULWARK_API void Bulwark_PlayBellSound();
 
 #endif
