@@ -1,38 +1,92 @@
-cmake_minimum_required(VERSION 3.0.0)
-project(Bulwark VERSION 0.1.0)
+cmake_minimum_required(VERSION 3.12.0)
+project(Bulwark VERSION 0.1.0 LANGUAGES C)
 
-include(CTest)
+option(BUILD_SHARED_LIBS "Build shared library" ON)
+include(GenerateExportHeader)
+include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
-enable_testing()
 
-file(GLOB_RECURSE publicHeaders include/*.h)
-file(GLOB_RECURSE sourceFiles src/*.c src/*.h)
+# Set intall RPATH info for library.
+if (NOT APPLE)
+  set(CMAKE_INSTALL_RPATH $ORIGIN)
+endif()
 
-include_directories(${PROJECT_NAME}
+add_library(Bulwark
+  src/Buffer.c
+  src/BufferChangeList.c
+  src/Bulwark.c
+  src/Color.c
+  src/Event.c
+  src/EventQueue.c
+  src/Input.c
+  src/Internal.h
+  src/Log.c
+  src/Sound.c
+  src/Window.c
+  )
+
+# Allows to use Bulwark as a subdirectory (and in examples)
+add_library(Bulwark::Bulwark ALIAS Bulwark)
+
+generate_export_header(Bulwark
+  EXPORT_MACRO_NAME BULWARK_API
+  EXPORT_FILE_NAME ${CMAKE_BINARY_DIR}/include/BulwarkAPIMacro.h
+  )
+
+target_include_directories(Bulwark
+  PUBLIC
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
   PRIVATE
-    ./include
-    ./src
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
   )
-
-add_library(${PROJECT_NAME} SHARED
-  ${sourceFiles}
-  )
-
-target_include_directories(${PROJECT_NAME} PRIVATE ./include ./src)
-
-# Copy public headers during install
-# install(FILES ${publicHeaders} DESTINATION include)
 
 # Make shared lib version follow project version.
-set_target_properties(${PROJECT_NAME} PROPERTIES
-VERSION ${PROJECT_VERSION}
-PUBLIC_HEADER ${publicHeaders}
+set_target_properties(Bulwark PROPERTIES
+  VERSION ${PROJECT_VERSION}
+  SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-install(TARGETS ${PROJECT_NAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/BulwarkConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/BulwarkConfig.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Bulwark
+  PATH_VARS
+    CMAKE_INSTALL_LIBDIR
+)
 
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/BulwarkConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
+)
+
+install(TARGETS Bulwark
+  EXPORT BulwarkTargets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT Bulwark_Development
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT Bulwark_Runtime
+    NAMELINK_COMPONENT Bulwark_Development
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT Bulwark_Runtime
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# install(FILES ${publicHeaders} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  
+install(EXPORT BulwarkTargets
+  FILE BulwarkTargets.cmake
+  COMPONENT Bulwark_Development
+  NAMESPACE Bulwark::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Bulwark
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/BulwarkConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/BulwarkConfigVersion.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Bulwark
+)
+
+add_subdirectory(examples)
