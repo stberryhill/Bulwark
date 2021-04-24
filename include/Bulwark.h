@@ -56,14 +56,14 @@ BULWARK_API void Bulwark_Initialize();
 BULWARK_API void Bulwark_Quit();
 
 /* Event functions */
-void BULWARK_API Bulwark_PollEvents();
-bool BULWARK_API Bulwark_HasEventsInQueue();
-void BULWARK_API Bulwark_ReadNextEventInQueue(BulwarkEvent *output);
-void BULWARK_API Bulwark_WaitForNextEvent(BulwarkEvent *output);
-BulwarkEvent BULWARK_API *BulwarkEvent_Create();
-void BULWARK_API BulwarkEvent_Destroy(BulwarkEvent *event);
-BulwarkEventType BULWARK_API BulwarkEvent_GetType(BulwarkEvent *event);
-char BULWARK_API BulwarkEvent_GetCharacter(BulwarkEvent *event);
+BULWARK_API void Bulwark_PollEvents();
+BULWARK_API bool Bulwark_HasEventsInQueue();
+BULWARK_API void Bulwark_ReadNextEventInQueue(BulwarkEvent *output);
+BULWARK_API void Bulwark_WaitForNextEvent(BulwarkEvent *output);
+BULWARK_API BulwarkEvent *BulwarkEvent_Create();
+BULWARK_API void BulwarkEvent_Destroy(BulwarkEvent *event);
+BULWARK_API BulwarkEventType BulwarkEvent_GetType(BulwarkEvent *event);
+BULWARK_API char BulwarkEvent_GetCharacter(BulwarkEvent *event);
 
 /* Color functions */
 BULWARK_API BulwarkColor *BulwarkColor_Create16(uint8_t color16);
