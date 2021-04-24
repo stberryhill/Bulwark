@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12.0)
-project(Bulwark VERSION 0.1.0 LANGUAGES C)
+project(Bulwark VERSION 0.1.1 LANGUAGES C)
 
 # Set default visibility to hidden (only functions bearing BULWARK_API will be exported)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
