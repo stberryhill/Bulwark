@@ -29,12 +29,12 @@ typedef enum {
   BULWARK_EVENT_TYPE_WINDOW_RESIZE
 } BulwarkEventType;
 
-enum BulwarkColorMode {
+typedef enum {
   BULWARK_COLOR_MODE_16,
   BULWARK_COLOR_MODE_256,
   BULWARK_COLOR_MODE_RGB,
   BULWARK_COLOR_MODE_COUNT
-};
+} BulwarkColorMode;
 
 typedef struct {
   /* Color to use for 16-color mode */
@@ -48,7 +48,7 @@ typedef struct {
   uint8_t g;
   uint8_t b;
 
-  enum BulwarkColorMode mode;
+  BulwarkColorMode mode;
 } BulwarkColor;
 
 /* Setup/teardown functions */
