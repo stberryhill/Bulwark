@@ -1,3 +1,8 @@
+/*
+ * License: Zlib
+ * Copyright (c) Sean Tyler Berryhill (sean.tyler.berryhill@gmail.com)
+ */
+
 #include "Bulwark.h"
 #include "Internal.h"
 

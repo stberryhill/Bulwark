@@ -1,3 +1,8 @@
+/*
+ * author: S. Tyler Berryhill
+ * email: sean.tyler.berryhill@gmail.com
+ */
+
 #ifndef _BULWARK_INTERNAL_H
 #define _BULWARK_INTERNAL_H
 
