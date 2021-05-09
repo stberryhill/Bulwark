@@ -24,19 +24,19 @@
 
 typedef struct BulwarkEvent BulwarkEvent;
 
-typedef enum BulwarkEventType {
+typedef enum {
   BULWARK_EVENT_TYPE_INPUT,
   BULWARK_EVENT_TYPE_WINDOW_RESIZE
 } BulwarkEventType;
 
-enum BulwarkColorMode {
+typedef enum {
   BULWARK_COLOR_MODE_16,
   BULWARK_COLOR_MODE_256,
   BULWARK_COLOR_MODE_RGB,
   BULWARK_COLOR_MODE_COUNT
-};
+} BulwarkColorMode;
 
-typedef struct BulwarkColor {
+typedef struct {
   /* Color to use for 16-color mode */
   uint8_t color16;
 
@@ -48,7 +48,7 @@ typedef struct BulwarkColor {
   uint8_t g;
   uint8_t b;
 
-  enum BulwarkColorMode mode;
+  BulwarkColorMode mode;
 } BulwarkColor;
 
 /* Setup/teardown functions */
@@ -56,16 +56,20 @@ BULWARK_API void Bulwark_Initialize();
 BULWARK_API void Bulwark_Quit();
 
 /* Event functions */
-void BULWARK_API Bulwark_PollEvents();
-bool BULWARK_API Bulwark_HasEventsInQueue();
-void BULWARK_API Bulwark_ReadNextEventInQueue(BulwarkEvent *output);
-void BULWARK_API Bulwark_WaitForNextEvent(BulwarkEvent *output);
-BulwarkEvent BULWARK_API *BulwarkEvent_Create();
-void BULWARK_API BulwarkEvent_Destroy(BulwarkEvent *event);
-BulwarkEventType BULWARK_API BulwarkEvent_GetType(BulwarkEvent *event);
-char BULWARK_API BulwarkEvent_GetCharacter(BulwarkEvent *event);
+BULWARK_API void Bulwark_PollEvents();
+BULWARK_API bool Bulwark_HasEventsInQueue();
+BULWARK_API void Bulwark_ReadNextEventInQueue(BulwarkEvent *output);
+BULWARK_API void Bulwark_WaitForNextEvent(BulwarkEvent *output);
+BULWARK_API BulwarkEvent *BulwarkEvent_Create();
+BULWARK_API void BulwarkEvent_Destroy(BulwarkEvent *event);
+BULWARK_API BulwarkEventType BulwarkEvent_GetType(BulwarkEvent *event);
+BULWARK_API char BulwarkEvent_GetCharacter(BulwarkEvent *event);
 
 /* Color functions */
+BULWARK_API BulwarkColor *BulwarkColor_Create16(uint8_t color16);
+BULWARK_API BulwarkColor *BulwarkColor_Create256ByCode(uint8_t colorCode256);
+BULWARK_API BulwarkColor *BulwarkColor_Create256(uint8_t r, uint8_t g, uint8_t b);
+BULWARK_API void BulwarkColor_Destroy(BulwarkColor *color);
 BULWARK_API void Bulwark_SetForegroundColor(const BulwarkColor *color);
 BULWARK_API void Bulwark_SetBackgroundColor(const BulwarkColor *color);
 BULWARK_API void Bulwark_SetClearColor(const BulwarkColor *color);

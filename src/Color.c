@@ -35,6 +35,34 @@ static void setForegroundColor256(int color256);
 static void setBackgroundColor256(int color256);
 static void setForegroundAndBackgroundColor256(int foregroundColor256, int backgroundColor256);
 
+BulwarkColor *BulwarkColor_Create16(uint8_t color16) {
+  BulwarkColor *color = malloc(sizeof *color);
+  color->mode = BULWARK_COLOR_MODE_16;
+  color->color16 = color16;
+
+  return color;
+}
+
+BulwarkColor *BulwarkColor_Create256ByCode(uint8_t colorCode256) {
+  BulwarkColor *color = malloc(sizeof *color);
+  color->mode = BULWARK_COLOR_MODE_256;
+  color->color256 = colorCode256;
+
+  return color;
+}
+
+BulwarkColor *BulwarkColor_Create256(uint8_t r, uint8_t g, uint8_t b) {
+  BulwarkColor *color = malloc(sizeof *color);
+  color->mode = BULWARK_COLOR_MODE_256;
+  color->color256 = 16 + (36 * r) + (16 * g) + b;
+
+  return color;
+}
+
+void BulwarkColor_Destroy(BulwarkColor *color) {
+  free(color);
+}
+
 /* Function definitions */
 void Bulwark_SetForegroundColor(const BulwarkColor *color) {
   currentForegroundColor = Color_GenerateColorCodeForColor(color);
