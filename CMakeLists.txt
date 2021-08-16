@@ -50,7 +50,7 @@ target_include_directories(Bulwark
 set_target_properties(Bulwark PROPERTIES
   VERSION ${PROJECT_VERSION}
   SOVERSION ${PROJECT_VERSION_MAJOR}
-)
+  )
 
 configure_package_config_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/BulwarkConfig.cmake.in
@@ -58,13 +58,13 @@ configure_package_config_file(
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Bulwark
   PATH_VARS
     CMAKE_INSTALL_LIBDIR
-)
+  )
 
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/BulwarkConfigVersion.cmake"
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion
-)
+  )
 
 install(TARGETS Bulwark
   EXPORT BulwarkTargets
@@ -76,21 +76,26 @@ install(TARGETS Bulwark
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     COMPONENT Bulwark_Runtime
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
+  )
 
-# install(FILES ${publicHeaders} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+set(publicHeaders
+  include/Bulwark.h
+  include/BulwarkAPIMacro.h
+  )
+
+install(FILES ${publicHeaders} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
   
 install(EXPORT BulwarkTargets
   FILE BulwarkTargets.cmake
   COMPONENT Bulwark_Development
   NAMESPACE Bulwark::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Bulwark
-)
+  )
 
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/BulwarkConfig.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/BulwarkConfigVersion.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Bulwark
-)
+  )
 
 add_subdirectory(examples)
