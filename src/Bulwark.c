@@ -23,6 +23,7 @@ static const char ANSI_HIDE_CURSOR[] = "\x1b[?25l";
 static const char ANSI_SHOW_CURSOR[] = "\x1b[?25h";
 static struct termios termiosBeforeQuickTermInitialized;
 static bool screenShouldBeCleared;
+static bool quitAlreadyCalled = false;
 
 /* Private function declarations */
 static void setClearColorAndBackgroundColorToBlackInitially();
@@ -93,15 +94,19 @@ static void disableBufferingOnStdoutSoPrintfWillGoThroughImmediately() {
 }
 
 void Bulwark_Quit() {
-  Buffer_Destroy();
-  BufferChangeList_Destroy();
-  clearBufferAndKillScrollback();
-  exitAlternateBufferModeSinceWeEnteredUponInitialization();
-  restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized();
+  if (!quitAlreadyCalled) {
+    quitAlreadyCalled = true;
 
-  EventQueue_Destroy();
-  Log_Close();
-  Bulwark_SetCursorVisible(true);
+    Buffer_Destroy();
+    BufferChangeList_Destroy();
+    clearBufferAndKillScrollback();
+    exitAlternateBufferModeSinceWeEnteredUponInitialization();
+    restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized();
+
+    EventQueue_Destroy();
+    Log_Close();
+    Bulwark_SetCursorVisible(true);
+  }
 }
 
 static void exitAlternateBufferModeSinceWeEnteredUponInitialization() {
