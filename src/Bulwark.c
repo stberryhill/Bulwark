@@ -36,6 +36,8 @@ static void clearBufferAndKillScrollback();
 static void restoreTerminalSettingsToWhatTheyWereBeforeWeInitialized();
 static void disableBufferingOnStdoutSoPrintfWillGoThroughImmediately();
 static void ensureWeStillCleanUpIfProgramStoppedWithCtrlC();
+static void copyStringAndIncrementByLength(const char *source, char *destination, int *numberToIncrementByCopiedLength);
+static int min(int a, int b);
 
 /* Function definitions */
 void Bulwark_Initialize() {
@@ -121,21 +123,24 @@ void Bulwark_DrawCharacter(int x, int y, char character) {
   if (x < 0 || y < 0 || x >= Bulwark_GetWindowWidth() || y >= Bulwark_GetWindowHeight()) {
     return;
   }
+
+  const int foregroundColorInBuffer = Buffer_GetForegroundColorCodeAtPosition(x, y);
+  const int backgroundColorInBuffer = Buffer_GetBackgroundColorCodeAtPosition(x, y);
   
   const bool characterIsDifferentThanBuffer = Buffer_GetCharacterAtPosition(x, y) != character;
-  const bool foregroundColorIsDifferentThanBuffer = Buffer_GetForegroundColorCodeAtPosition(x, y) != Color_GetForegroundColorCode();
-  const bool backgroundColorIsDifferentThanBuffer = Buffer_GetBackgroundColorCodeAtPosition(x, y) != Color_GetBackgroundColorCode();
+  const bool foregroundColorIsDifferentThanBuffer = !Color_IsForegroundColorCleared() && (foregroundColorInBuffer != Color_GetForegroundColorCode());
+  const bool backgroundColorIsDifferentThanBuffer = !Color_IsBackgroundColorCleared() && (backgroundColorInBuffer != Color_GetBackgroundColorCode());
 
   if(characterIsDifferentThanBuffer || foregroundColorIsDifferentThanBuffer || backgroundColorIsDifferentThanBuffer) {
     BufferChange change;
     change.newCharacter = character;
-    change.newForegroundColor = Color_GetForegroundColorCode();
-    change.newBackgroundColor = Color_GetBackgroundColorCode();
+    change.newForegroundColor = Color_IsForegroundColorCleared() ? foregroundColorInBuffer : Color_GetForegroundColorCode();
+    change.newBackgroundColor = Color_IsBackgroundColorCleared() ? backgroundColorInBuffer : Color_GetBackgroundColorCode();
     change.positionX = x;
     change.positionY = y;
     BufferChangeList_AddChange(change);
-  } else {
-    Buffer_MarkUpToDateAtPosition(x, y);
+
+    Buffer_SetCharacterAndColorCodesAtPosition(x, y, character, change.newForegroundColor, change.newBackgroundColor);
   }
 }
 
@@ -157,37 +162,102 @@ void Bulwark_ClearScreen() {
 }
 
 void Bulwark_UpdateScreen() {
-  BufferChangeListNode *node = BufferChangeList_GetLastNode();
+  if (BufferChangeList_GetSize() == 0) {
+    return;
+  }
+
+  BufferChangeListNode *node = BufferChangeList_GetHead();
 
   BulwarkColor foregroundColor;
   BulwarkColor backgroundColor;
   BufferChange *change;
+  const int sizePerChange = 28;
+  const int bufferSizeChanges = 73;
+  char buffer[(sizePerChange * bufferSizeChanges) + 1]; /* Roughly 2kB */
   
-  /* Loop through changes backwards, drawing only if needed. Changes to the same position won't be drawn, only latest change at position is drawn. */
-  if (BufferChangeList_GetSize() > 0) {
-    do {
-      /* TODO: Optimize. */
+  int changeCount;
+  int byteCount;
+  const int bufferPassesNecessary = (BufferChangeList_GetSize() / bufferSizeChanges) + 1;
+  Log_Info("Number of changes = %d, buffer Passes necessary=%d", BufferChangeList_GetSize(), bufferPassesNecessary);
+  int bufferPassCount;
+  for (bufferPassCount = 0; bufferPassCount < bufferPassesNecessary; bufferPassCount++) {
+  
+    const int changesLeft = BufferChangeList_GetSize() - (bufferPassCount * bufferSizeChanges);
+    const int changesInThisBuffer = min(changesLeft, bufferSizeChanges);
+    Log_Info("Changes left = %d, Change in this buffer = %d", changesLeft, changesInThisBuffer);
+
+    int bufferPos = 0;
+    int changeCount;
+    for (changeCount = 0; changeCount < changesInThisBuffer; changeCount++) {
+      Log_Info("bufferPos = %d", bufferPos);
       change = node->data;
-      if (!Buffer_IsUpToDateAtPosition(change->positionX, change->positionY)) {
-        Log_Info("Drawing at (%d, %d) color: %d", change->positionX, change->positionY, change->newBackgroundColor & 0x000000FF);
-        Color_ExtractColorFromCode(change->newForegroundColor, &foregroundColor);
-        Color_ExtractColorFromCode(change->newBackgroundColor, &backgroundColor);
+      Log_Info("Drawing at (%d, %d) color: %d", change->positionX, change->positionY, change->newBackgroundColor & 0x000000FF);
 
-        Bulwark_Immediate_SetForegroundAndBackgroundColor(&foregroundColor, &backgroundColor);
-        Bulwark_Immediate_SetDrawPosition(change->positionX, change->positionY);
-        Bulwark_Immediate_DrawCharacter(change->newCharacter);
+      /* TODO, only add color change to buffer if needed for foreground & background */
 
-        /* Update buffer contents to match screen */
-        Buffer_SetCharacterAndColorCodesAtPosition(change->positionX, change->positionY, change->newCharacter, change->newForegroundColor, change->newBackgroundColor);
-        Buffer_MarkUpToDateAtPosition(change->positionX, change->positionY);
-      } else {
-        Log_Info("Not drawing at (%d, %d) - already drawn", change->positionX, change->positionY);
+      AnsiColorInfo16 ansiColorInfo;
+      char color16String[28];
+
+      /* Foreground */
+      Color_ExtractColorFromCode(change->newForegroundColor, &foregroundColor);
+
+      switch (foregroundColor.mode) {
+        case BULWARK_COLOR_MODE_16:
+          Color_GnerateForegroundAnsiColorInfoFromColor16(foregroundColor.color16, &ansiColorInfo);
+          bufferPos += sprintf(buffer + bufferPos, ansi("%d%d"), ansiColorInfo.brightnessSpecifier, ansiColorInfo.colorSpecifier);
+          break;
+        case BULWARK_COLOR_MODE_256:
+          bufferPos += sprintf(buffer + bufferPos, ansi(FG_256 "%d"), foregroundColor.color256);
+          break;
+        case BULWARK_COLOR_MODE_RGB:
+          /* TOOD: implement */
+          Log_Error("RGB colors not yet implemented");
+          exit(EXIT_FAILURE);
+          break;
+        default:
+          Log_Error("Unknown foreground color mode %d", foregroundColor.mode);
+          exit(EXIT_FAILURE);
+          break;
       }
-      
-    } while ((node = node->prev) != NULL);
 
-    BufferChangeList_Clear();
+      /* Background */
+      Color_ExtractColorFromCode(change->newBackgroundColor, &backgroundColor);
+
+      switch (backgroundColor.mode) {
+        case BULWARK_COLOR_MODE_16:
+          Color_GenerateBackgroundAnsiColorInfoFromColor16(backgroundColor.color16, &ansiColorInfo);
+          bufferPos += sprintf(buffer + bufferPos, ansi("%d%d"), ansiColorInfo.brightnessSpecifier, ansiColorInfo.colorSpecifier);
+          break;
+        case BULWARK_COLOR_MODE_256:
+          bufferPos += sprintf(buffer + bufferPos, ansi(BG_256 "%d"), backgroundColor.color256);
+          break;
+        case BULWARK_COLOR_MODE_RGB:
+          /* TOOD: implement */
+          Log_Error("RGB colors not yet implemented\n");
+          exit(EXIT_FAILURE);
+          break;
+        default:
+          Log_Error("Unknown background color mode %d", backgroundColor.mode);
+          exit(EXIT_FAILURE);
+          break;
+      }
+
+      bufferPos += sprintf(buffer + bufferPos, "%s[%d;%dH", ANSI_ESCAPE_SEQUENCE_START, change->positionY + 1, change->positionX + 1);
+      buffer[bufferPos++] = change->newCharacter;
+
+      /* Update buffer contents to match screen */
+      Buffer_SetCharacterAndColorCodesAtPosition(change->positionX, change->positionY, change->newCharacter, change->newForegroundColor, change->newBackgroundColor);
+      Buffer_MarkUpToDateAtPosition(change->positionX, change->positionY);
+
+      node = node->next;
+    }
+      Log_Info("POS: %d", bufferPos);
+      Log_Info("buffer: %s", buffer);
+      buffer[bufferPos++] = '\0';
+      printf("%s", buffer);
   }
+
+  BufferChangeList_Clear();
 
   if (screenShouldBeCleared) {
     const uint32_t clearColorCode = Color_GetClearColorCode();
@@ -219,6 +289,15 @@ void Bulwark_UpdateScreen() {
   }
 }
 
+static void copyStringAndIncrementByLength(const char *source, char *destination, int *numberToIncrementByCopiedLength) {
+  int i;
+  for (i = 0; source[i] != '\0'; i++) {
+    destination[i] = source[i];
+  }
+
+  *numberToIncrementByCopiedLength += i;
+}
+
 void Bulwark_Immediate_SetDrawPosition(int x, int y) {
   printf("%s[%d;%dH", ANSI_ESCAPE_SEQUENCE_START, y+1, x+1);
 }
@@ -239,6 +318,10 @@ void Bulwark_SetCursorVisible(bool cursorVisible) {
   }
 }
 
-void Bulwark_ClearForegroundAndBackgroundColor() {
+void Bulwark_Immediate_ClearForegroundAndBackgroundColor() {
   printf("%s[%dm", ANSI_ESCAPE_SEQUENCE_START, ANSI_CLEAR_FORMATTING);
+}
+
+static int min(int a, int b) {
+  return a * (a < b) + b * (b < a);
 }

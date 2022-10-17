@@ -9,11 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define WITH ";"
-#define FG_256 "38;5;"
-#define BG_256 "48;5;"
-#define ansi(sequence) "\x1b[" sequence "m"
-
 #define COLOR_MODE_MASK   0x0F000000
 #define COLOR_RED_MASK    0x00FF0000
 #define COLOR_BLUE_MASK   0x0000FF00
@@ -29,10 +24,10 @@
 static uint32_t currentForegroundColor;
 static uint32_t currentBackgroundColor;
 static uint32_t currentClearColor;
+static bool foregroundColorCleared;
+static bool backgroundColorCleared;
 
 /* Private function declarations */
-static void generateForegroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output);
-static void generateBackgroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output);
 static void setForegroundColor16(int color16);
 static void setBackgroundColor16(int color16);
 static void setForegroundAndBackgroundColor16(int foregroundColor16, int backgroundColor16);
@@ -56,6 +51,9 @@ BulwarkColor *BulwarkColor_Create256ByCode(uint8_t colorCode256) {
   return color;
 }
 
+/**
+ * Each r, g, b needs to be in the range [0, 5]
+ */
 BulwarkColor *BulwarkColor_Create256(uint8_t r, uint8_t g, uint8_t b) {
   BulwarkColor *color = malloc(sizeof *color);
   color->mode = BULWARK_COLOR_MODE_256;
@@ -71,10 +69,12 @@ void BulwarkColor_Destroy(BulwarkColor *color) {
 /* Function definitions */
 void Bulwark_SetForegroundColor(const BulwarkColor *color) {
   currentForegroundColor = Color_GenerateColorCodeForColor(color);
+  foregroundColorCleared = false;
 }
 
 void Bulwark_SetBackgroundColor(const BulwarkColor *color) {
   currentBackgroundColor = Color_GenerateColorCodeForColor(color);
+  backgroundColorCleared = false;
 }
 
 uint32_t Color_GenerateColorCodeForColor(const BulwarkColor *color) {
@@ -114,6 +114,8 @@ void Color_ExtractColorFromCode(uint32_t colorCode, BulwarkColor *result) {
 void Bulwark_SetForegroundAndBackgroundColor(const BulwarkColor *foregroundColor, const BulwarkColor *backgroundColor) {
   currentForegroundColor = Color_GenerateColorCodeForColor(foregroundColor);
   currentBackgroundColor = Color_GenerateColorCodeForColor(backgroundColor);
+  foregroundColorCleared = false;
+  backgroundColorCleared = false;
 }
 
 uint32_t Color_GetForegroundColorCode() {
@@ -130,6 +132,20 @@ void Bulwark_SetClearColor(const BulwarkColor *color) {
 
 uint32_t Color_GetClearColorCode() {
   return currentClearColor;
+}
+
+void Bulwark_ClearForegroundAndBackgroundColor() {
+  currentForegroundColor = currentClearColor;
+  currentBackgroundColor = currentClearColor;
+  foregroundColorCleared = true;
+  backgroundColorCleared = true;
+}
+
+bool Color_IsForegroundColorCleared() {
+  return foregroundColorCleared;
+}
+bool Color_IsBackgroundColorCleared() {
+  return backgroundColorCleared;
 }
 
 void Bulwark_Immediate_SetForegroundColor(const BulwarkColor *color) {
@@ -159,7 +175,7 @@ void Bulwark_Immediate_SetForegroundAndBackgroundColor(const BulwarkColor *foreg
 static void setForegroundColor16(int color16) {
   AnsiColorInfo16 ansiForegroundColorInfo;
 
-  generateForegroundAnsiColorInfoFromColor16(color16, &ansiForegroundColorInfo);
+  Color_GnerateForegroundAnsiColorInfoFromColor16(color16, &ansiForegroundColorInfo);
 
   printf(ansi("%d%d"), ansiForegroundColorInfo.brightnessSpecifier, ansiForegroundColorInfo.colorSpecifier);
 }
@@ -167,7 +183,7 @@ static void setForegroundColor16(int color16) {
 static void setBackgroundColor16(int color16) {
   AnsiColorInfo16 ansiBackgroundColorInfo;
 
-  generateBackgroundAnsiColorInfoFromColor16(color16, &ansiBackgroundColorInfo);
+  Color_GenerateBackgroundAnsiColorInfoFromColor16(color16, &ansiBackgroundColorInfo);
 
   printf(ansi("%d%d"), ansiBackgroundColorInfo.brightnessSpecifier, ansiBackgroundColorInfo.colorSpecifier);
 }
@@ -176,8 +192,8 @@ static void setForegroundAndBackgroundColor16(int foregroundColor16, int backgro
   AnsiColorInfo16 ansiForegroundColorInfo;
   AnsiColorInfo16 ansiBackgroundColorInfo;
 
-  generateForegroundAnsiColorInfoFromColor16(foregroundColor16, &ansiForegroundColorInfo);
-  generateBackgroundAnsiColorInfoFromColor16(backgroundColor16, &ansiBackgroundColorInfo);
+  Color_GnerateForegroundAnsiColorInfoFromColor16(foregroundColor16, &ansiForegroundColorInfo);
+  Color_GenerateBackgroundAnsiColorInfoFromColor16(backgroundColor16, &ansiBackgroundColorInfo);
 
   printf(ansi("%d%d" WITH "%d%d"),
           ansiForegroundColorInfo.brightnessSpecifier, ansiForegroundColorInfo.colorSpecifier,
@@ -196,7 +212,7 @@ static void setForegroundAndBackgroundColor256(int foregroundColor256, int backg
   printf(ansi(FG_256 "%d" WITH BG_256 "%d"), foregroundColor256, backgroundColor256);
 }
 
-static void generateForegroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output) {
+void Color_GnerateForegroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output) {
   if (color16 < 8) {
     output->brightnessSpecifier = ANSI_FOREGROUND_BRIGHTNESS_NORMAL;
     output->colorSpecifier = color16;
@@ -206,7 +222,7 @@ static void generateForegroundAnsiColorInfoFromColor16(int color16, AnsiColorInf
   }
 }
 
-static void generateBackgroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output) {
+void Color_GenerateBackgroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output) {
   if (color16 < 8) {
     output->brightnessSpecifier = ANSI_BACKGROUND_BRIGHTNESS_NORMAL;
     output->colorSpecifier = color16;

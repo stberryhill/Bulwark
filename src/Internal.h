@@ -9,7 +9,15 @@
 #include "Bulwark.h"
 #include <stdint.h>
 
+#define WITH ";"
+#define FG_256 "38;5;"
+#define BG_256 "48;5;"
+#define ansi(sequence) "\x1b[" sequence "m"
+
+#define CLEAR_COLOR_CODE 1 << 31
+
 #define MAX_ANSI_ESCAPE_SEQUENCE_STRING_LENGTH 12
+#define MAX_POSITION_ESCAPE_SEQUENCE_STRING_LENGTH 15
 #define MAX_EVENTS 64
 
 typedef struct AnsiEscapeSequence {
@@ -97,7 +105,11 @@ uint32_t Color_GetForegroundColorCode();
 uint32_t Color_GetBackgroundColorCode();
 uint32_t Color_GetClearColorCode();
 uint32_t Color_GenerateColorCodeForColor(const BulwarkColor *color);
+void Color_GnerateForegroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output);
+void Color_GenerateBackgroundAnsiColorInfoFromColor16(int color16, AnsiColorInfo16 *output);
 void Color_ExtractColorFromCode(uint32_t colorCode, BulwarkColor *result);
+bool Color_IsForegroundColorCleared();
+bool Color_IsBackgroundColorCleared();
 
 void BufferChangeList_Initialize();
 void BufferChangeList_Destroy();

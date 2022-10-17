@@ -97,6 +97,7 @@ BULWARK_API void Bulwark_UpdateScreen();
 BULWARK_API void Bulwark_Immediate_SetDrawPosition(int x, int y);
 BULWARK_API void Bulwark_Immediate_DrawCharacter(char character);
 BULWARK_API void Bulwark_Immediate_DrawString(const char *string);
+BULWARK_API void Bulwark_Immediate_ClearForegroundAndBackgroundColor();
 
 /* Cursor style functions */
 BULWARK_API void Bulwark_SetCursorVisible(bool cursorVisible);

@@ -76,7 +76,7 @@ int main() {
   while (running) {
     Bulwark_WaitForNextEvent(event);
     
-    if (BulwarkEvent_GetCharacter(event) == EOF) {
+    if (BulwarkEvent_GetCharacter(event) == ' ') {
       running = false;
     }
   }

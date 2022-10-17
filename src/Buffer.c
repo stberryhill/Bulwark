@@ -8,7 +8,6 @@
 
 #include <stdlib.h>
 
-static const uint32_t CLEAR_COLOR_CODE = (1 << 31);
 static const char CLEAR_CHARACTER = ' ';
 
 static Buffer *buffer;
