@@ -141,6 +141,8 @@ void Bulwark_DrawCharacter(int x, int y, char character) {
     BufferChangeList_AddChange(change);
 
     Buffer_SetCharacterAndColorCodesAtPosition(x, y, character, change.newForegroundColor, change.newBackgroundColor);
+  } else {
+    /* Could try to avoid adding a change if it already will be accomplished by a change before it */
   }
 }
 
