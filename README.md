@@ -37,6 +37,8 @@ The current goals of Bulwark are:
 * Throw away legacy features no one uses.
 * Be easy to port.
 
+Please not the library is still in early stages and there are problematic bugs I'm still working on fixing (and general cleanup/refactoring that's on my to-do list).
+
 ## Core Ideas
 
 * Bulwark does away with row/column coordinates in favor of width/height and x/y.
