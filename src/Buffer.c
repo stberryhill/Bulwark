@@ -31,6 +31,7 @@ void Buffer_Initialize(const uint16_t width, const uint16_t height) {
       buffer->characters[j][i] = CLEAR_CHARACTER;
       buffer->foregroundColorCodes[j][i] = CLEAR_COLOR_CODE;
       buffer->backgroundColorCodes[j][i] = CLEAR_COLOR_CODE;
+      Buffer_MarkOutdatedAtPosition(i, j); /* Start buffer out as dirty so the whole thing gets drawn first time */
     }
   }
 
@@ -102,7 +103,7 @@ uint32_t Buffer_GetForegroundColorCodeAtPosition(const uint16_t x, const uint16_
 }
 
 uint32_t Buffer_GetBackgroundColorCodeAtPosition(const uint16_t x, const uint16_t y) {
-  return buffer->backgroundColorCodes[y][x];
+  return buffer->backgroundColorCodes[y][x] & 0x0FFFFFFF; /* Remove dirty flag */
 }
 
 char Buffer_GetCharacterAtPosition(const uint16_t x, const uint16_t y) {
@@ -125,7 +126,7 @@ void Buffer_MarkWholeBufferDirty() {
   for (y = 0; y < buffer->height; y++) {
     int x;
     for (x = 0; x < buffer->width; x++) {
-      Buffer_MarkUpToDateAtPosition(x, y);
+      Buffer_MarkOutdatedAtPosition(x, y);
     }
   }
 }
