@@ -14,11 +14,12 @@ static BufferChangeList *bufferChangeList;
 
 /* Private function declarations */
 static BufferChangeList *createList();
-static void freeListItems(BufferChangeList *list);
+static void freeListItem(BufferChangeListNode *node);
 static BufferChangeListNode * getListHead(BufferChangeList *list);
 static BufferChangeListNode *getLastNodeOfList(BufferChangeList *list);
 static int getListSize(BufferChangeList *list);
 static BufferChange *addChangeToList(BufferChangeList *list, const BufferChange change);
+static void removeChangeFromList(BufferChangeListNode *node);
 
 /* Function definitions */
 void BufferChangeList_Initialize() {
@@ -35,24 +36,13 @@ BufferChangeList *createList() {
 }
 
 void BufferChangeList_Destroy() {
-    freeListItems(bufferChangeList);
+    BufferChangeList_Clear();
     free(bufferChangeList);
 }
 
-void freeListItems(BufferChangeList *list) {
-    if (list) {
-        BufferChangeListNode *n = list->head;
-        int i;
-        for (i = 0; i < list->size; i++) {
-            BufferChangeListNode *next = n->next;
-            free(n->data);
-            free(n);
-            n = next;
-        }
-    }
-    
-    list->lastNode = 0;
-    list->size = 0;
+void freeListItem(BufferChangeListNode *node) {
+    free(node->data);
+    free(node);
 }
 
 BufferChangeListNode *BufferChangeList_GetHead() {
@@ -80,11 +70,50 @@ int getListSize(BufferChangeList *list) {
 }
 
 void BufferChangeList_Clear() {
-    freeListItems(bufferChangeList);
+    if (bufferChangeList) {
+        BufferChangeListNode *node = bufferChangeList->head;
+        int i;
+        for (i = 0; i < bufferChangeList->size; i++) {
+            const BufferChange *change = node->data;
+            BufferChangeListNode *next = node->next;
+            Buffer_ClearPendingChangeAtPosition(change->positionX, change->positionY);
+            freeListItem(node);
+            node = next;
+        }
+
+        bufferChangeList->lastNode = 0;
+        bufferChangeList->size = 0;
+    }
 }
 
 void BufferChangeList_AddChange(const BufferChange change) {
-    addChangeToList(bufferChangeList, change);
+    const uint16_t x = change.positionX;
+    const uint16_t y = change.positionY;
+
+    if (Buffer_HasPendingChangeAtPosition(x, y)) {
+        /* Merge change with already existing one */
+        Log_Info("Merged");
+        BufferChange *existingChange = Buffer_GetPendingChangeAtPosition(x, y)->data;
+        existingChange->newCharacter = change.newCharacter;
+        if (change.newBackgroundColor != CLEAR_COLOR_CODE) {
+            existingChange->newBackgroundColor = change.newBackgroundColor;
+        }
+        if (change.newForegroundColor != CLEAR_COLOR_CODE) {
+            existingChange->newForegroundColor = change.newForegroundColor;
+        }
+
+        if (Buffer_IsChangeRedundant(existingChange)) {
+            /* Remove redundant change */
+            Log_Info("Redundant change removed");
+            removeChangeFromList(Buffer_GetPendingChangeAtPosition(x, y));
+            Buffer_ClearPendingChangeAtPosition(x, y);
+            Buffer_MarkUpToDateAtPosition(x, y);
+        }
+    } else {
+        Log_Info("New Change added");
+        addChangeToList(bufferChangeList, change);
+        Buffer_MarkPendingChange(BufferChangeList_GetLastNode());
+    }
 }
 
 BufferChange *addChangeToList(BufferChangeList *list, const BufferChange change) {
@@ -112,4 +141,33 @@ BufferChange *addChangeToList(BufferChangeList *list, const BufferChange change)
     list->size++;
 
     return newNode->data;
+}
+
+void removeChangeFromList(BufferChangeListNode *node) {
+    if (bufferChangeList->size == 0) {
+        return;
+    } else {
+        BufferChangeListNode *next = node->next;
+        BufferChangeListNode *prev = node->prev;
+        BufferChange *data = node->data;
+
+        Log_Info("remove char=%c, fg=%d, bg=%d, x=%d, y=%d", data->newCharacter, data->newForegroundColor, data->newBackgroundColor, data->positionX, data->positionY);
+
+        freeListItem(node);
+
+        if (node == bufferChangeList->head) {
+            if (next) {
+                next->prev = 0;
+            }
+            bufferChangeList->head = next;
+        } else {
+            prev->next = next;
+
+            if (next) {
+                next->prev = prev;
+            }
+        }
+
+        bufferChangeList->size--;
+    }
 }

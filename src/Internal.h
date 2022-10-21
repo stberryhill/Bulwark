@@ -95,11 +95,18 @@ void Buffer_Resize(const uint16_t width, const uint16_t height);
 uint32_t Buffer_GetForegroundColorCodeAtPosition(const uint16_t x, const uint16_t y);
 uint32_t Buffer_GetBackgroundColorCodeAtPosition(const uint16_t x, const uint16_t y);
 char Buffer_GetCharacterAtPosition(const uint16_t x, const uint16_t y);
+void Buffer_AddPendingChange(const BufferChange *change);
 void Buffer_SetCharacterAndColorCodesAtPosition(const uint16_t x, const uint16_t y, const char character, const uint16_t foregroundColorCode, const uint16_t backgroundColorCode);
+void Buffer_MarkPendingChange(BufferChangeListNode *change);
+bool Buffer_HasPendingChangeAtPosition(const uint16_t x, const uint16_t y);
+BufferChangeListNode *Buffer_GetPendingChangeAtPosition(const uint16_t x, const uint16_t y);
+void Buffer_ClearPendingChangeAtPosition(const uint16_t x, const uint16_t y);
 void Buffer_MarkWholeBufferDirty();
 void Buffer_MarkUpToDateAtPosition(const uint16_t x, const uint16_t y);
 void Buffer_MarkOutdatedAtPosition(const uint16_t x, const uint16_t y);
 bool Buffer_IsUpToDateAtPosition(const uint16_t x, const uint16_t y);
+bool Buffer_IsChangeRedundant(const BufferChange *change);
+
 
 uint32_t Color_GetForegroundColorCode();
 uint32_t Color_GetBackgroundColorCode();

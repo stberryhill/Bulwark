@@ -125,29 +125,40 @@ void Bulwark_DrawCharacter(int x, int y, char character) {
     return;
   }
 
-  const int foregroundColorInBuffer = Buffer_GetForegroundColorCodeAtPosition(x, y);
-  const int backgroundColorInBuffer = Buffer_GetBackgroundColorCodeAtPosition(x, y);
+  int existingForeground;
+  int existingBackground;
+  char existingCharacter;
+
+  if (Buffer_HasPendingChangeAtPosition(x, y)) {
+    const BufferChange *pendingChange = Buffer_GetPendingChangeAtPosition(x, y)->data;
+    existingForeground = pendingChange->newForegroundColor;
+    existingBackground = pendingChange->newBackgroundColor;
+    existingCharacter = pendingChange->newCharacter;
+  } else {
+    existingForeground = Buffer_GetForegroundColorCodeAtPosition(x, y);
+    existingBackground = Buffer_GetBackgroundColorCodeAtPosition(x, y);
+    existingCharacter = Buffer_GetCharacterAtPosition(x, y);
+  }
   
-  const bool characterIsDifferentThanBuffer = Buffer_GetCharacterAtPosition(x, y) != character;
-  const bool foregroundColorIsDifferentThanBuffer = !Color_IsForegroundColorCleared() && character != ' ' && foregroundColorInBuffer != Color_GetForegroundColorCode(); /* Whitespace should ignore foreground color */
-  const bool backgroundColorIsDifferentThanBuffer = !Color_IsBackgroundColorCleared() && backgroundColorInBuffer != Color_GetBackgroundColorCode();
+  const bool characterIsDifferentThanBuffer = existingCharacter != character;
+  const bool foregroundColorIsDifferentThanBuffer = !Color_IsForegroundColorCleared() && character != ' ' && existingForeground != Color_GetForegroundColorCode(); /* Whitespace should ignore foreground color */
+  const bool backgroundColorIsDifferentThanBuffer = !Color_IsBackgroundColorCleared() && existingBackground != Color_GetBackgroundColorCode();
 
   if(characterIsDifferentThanBuffer || foregroundColorIsDifferentThanBuffer || backgroundColorIsDifferentThanBuffer) {
     BufferChange change;
     change.newCharacter = character;
-    change.newForegroundColor = Color_IsForegroundColorCleared() ? foregroundColorInBuffer : Color_GetForegroundColorCode();
-    change.newBackgroundColor = Color_IsBackgroundColorCleared() ? backgroundColorInBuffer : Color_GetBackgroundColorCode();
+    change.newForegroundColor = Color_IsForegroundColorCleared() ? existingForeground : Color_GetForegroundColorCode();
+    change.newBackgroundColor = Color_IsBackgroundColorCleared() ? existingBackground : Color_GetBackgroundColorCode();
     change.positionX = x;
     change.positionY = y;
+
+    Log_Info("Change check. diff char=%d, diff fg=%d, diff bg=%d", characterIsDifferentThanBuffer, foregroundColorIsDifferentThanBuffer, backgroundColorIsDifferentThanBuffer);
+    Log_Info("c=%c, new c=%c, fg=%d, new fg=%d, bg=%d, new bg=%d", existingCharacter, change.newCharacter, existingForeground, change.newForegroundColor, existingBackground, change.newBackgroundColor);
+
     BufferChangeList_AddChange(change);
 
     /* TODO: add code to merge changes in same x,y location reusing foreground/background color if cleared.
      Will either need hash map or 2d array of buffer change pointers */
-
-    Log_Info("Add change. diff char=%d, diff fg=%d, diff bg=%d", characterIsDifferentThanBuffer, foregroundColorIsDifferentThanBuffer, backgroundColorIsDifferentThanBuffer);
-    Log_Info("c=%c, new c=%c, fg=%d, new fg=%d, bg=%d, new bg=%d", Buffer_GetCharacterAtPosition(x, y), change.newCharacter, foregroundColorInBuffer, change.newForegroundColor, backgroundColorInBuffer, change.newBackgroundColor);
-
-    Buffer_SetCharacterAndColorCodesAtPosition(x, y, character, change.newForegroundColor, change.newBackgroundColor);
   } else {
     /* Mark up to date so it won't be cleared if ClearScreen was called (basically keep this drawn without clearing & drawing again) */
     Buffer_MarkUpToDateAtPosition(x, y);
@@ -202,6 +213,8 @@ void Bulwark_UpdateScreen() {
         }
       }
     }
+
+    Log_Info("End Clear");
 
     screenShouldBeCleared = false;
   }
